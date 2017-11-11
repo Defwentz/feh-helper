@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:padding="5dp"
+        android:gravity="center"
+        android:id="@+id/txt_rar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="rar" />
+
+    <TextView
+        android:padding="5dp"
+        android:gravity="center"
+        android:id="@+id/txt_hp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="hp" />
+
+    <TextView
+        android:padding="5dp"
+        android:gravity="center"
+        android:id="@+id/txt_atk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="atk" />
+
+    <TextView
+        android:padding="5dp"
+        android:gravity="center"
+        android:id="@+id/txt_spd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="spd" />
+
+    <TextView
+        android:padding="5dp"
+        android:gravity="center"
+        android:id="@+id/txt_def"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="def" />
+
+    <TextView
+        android:padding="5dp"
+        android:gravity="center"
+        android:id="@+id/txt_res"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="res" />
+</LinearLayout>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <android.widget.AutoCompleteTextView
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:text="@string/search"
+    android:minWidth="200dp"
+    android:id="@+id/txtview_search"
+    />
+</android.support.constraint.ConstraintLayout>
