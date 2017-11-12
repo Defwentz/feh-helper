@@ -1,2 +1,2 @@
 # feh-helper
-feheroes helper app
+feheroes helper app in development, for fun i guess
