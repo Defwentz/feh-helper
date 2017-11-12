@@ -5,7 +5,7 @@
     <android.widget.AutoCompleteTextView
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:text="@string/search"
+    android:text="@string/search_hint"
     android:minWidth="200dp"
     android:id="@+id/txtview_search"
     />

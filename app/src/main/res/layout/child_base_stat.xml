@@ -1,59 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="8dp">
 
     <TextView
-        android:padding="5dp"
-        android:gravity="center"
         android:id="@+id/txt_rar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="rar" />
+        android:gravity="center"
+        android:text="rar"
+        android:textAppearance="@style/ListChild" />
 
     <TextView
-        android:padding="5dp"
-        android:gravity="center"
         android:id="@+id/txt_hp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="hp" />
+        android:gravity="center"
+        android:text="hp"
+        android:textAppearance="@style/ListChild" />
 
     <TextView
-        android:padding="5dp"
-        android:gravity="center"
         android:id="@+id/txt_atk"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="atk" />
+        android:gravity="center"
+        android:text="atk"
+        android:textAppearance="@style/ListChild" />
 
     <TextView
-        android:padding="5dp"
-        android:gravity="center"
         android:id="@+id/txt_spd"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="spd" />
+        android:gravity="center"
+        android:text="spd"
+        android:textAppearance="@style/ListChild" />
 
     <TextView
-        android:padding="5dp"
-        android:gravity="center"
         android:id="@+id/txt_def"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="def" />
+        android:gravity="center"
+        android:text="def"
+        android:textAppearance="@style/ListChild" />
 
     <TextView
-        android:padding="5dp"
-        android:gravity="center"
         android:id="@+id/txt_res"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="res" />
+        android:gravity="center"
+        android:text="res"
+        android:textAppearance="@style/ListChild" />
 </LinearLayout>

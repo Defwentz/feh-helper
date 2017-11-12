@@ -1,5 +1,9 @@
 package zinus.feh.bean
 
+import org.jetbrains.anko.db.insert
+import zinus.feh.DBHelper
+import zinus.feh.GameLogic
+
 /**
  * Created by macbookair on 11/10/17.
  */
@@ -43,4 +47,24 @@ class MHeroBean(id:Long, name:String, nick:String, rar:Int, mrg:Int, date:Int, b
         return "MHeroBean(name='$name', nickname='$nickname', id=$id, rarity=$rarity, merge=$merge, inputDate=$inputDate, boon=$boon, bane=$bane)"
     }
 
+    fun toDes(): String {
+        if(merge == 0) {
+            return "$name aka $nickname, $rarity*, +${GameLogic.STAT[boon]}/-${GameLogic.STAT[bane]}"
+        } else {
+            return "$name aka $nickname, $rarity*(+$merge), +${GameLogic.STAT[boon]}/-${GameLogic.STAT[bane]}"
+        }
+    }
+
+    fun saveIntoDB(database: DBHelper) {
+        database.use {
+            insert(TABLE_NAME,
+                    COL_NAME to name,
+                    COL_NICK to nickname,
+                    COL_RAR to rarity,
+                    COL_MRG to merge,
+                    COL_DATE to inputDate,
+                    COL_BOON to boon,
+                    COL_BANE to bane)
+        }
+    }
 }

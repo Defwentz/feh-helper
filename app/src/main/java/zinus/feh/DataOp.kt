@@ -7,6 +7,7 @@ import org.jetbrains.anko.db.parseList
 import org.jetbrains.anko.db.select
 import org.jsoup.Jsoup
 import zinus.feh.bean.HeroBean
+import zinus.feh.bean.MHeroBean
 
 /**
  * Created by macbookair on 11/10/17.
@@ -90,6 +91,21 @@ object DataOp {
                         HeroBean.COL_GSPD to hero.spdgrowth,
                         HeroBean.COL_GDEF to hero.defgrowth,
                         HeroBean.COL_GRES to hero.resgrowth)
+            }
+        }
+    }
+
+    fun fetchNationFromLocal(database: DBHelper, updateLocal: (List<MHeroBean>) -> Any) {
+        database.use {
+            select(MHeroBean.TABLE_NAME).exec {
+                val rowParser = object : RowParser<MHeroBean> {
+                    override fun parseRow(columns: Array<Any?>): MHeroBean {
+                        return MHeroBean.initFromDB(columns)
+                    }
+                }
+                val result = this.parseList(rowParser)
+
+                updateLocal(result)
             }
         }
     }

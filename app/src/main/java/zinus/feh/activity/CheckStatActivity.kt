@@ -1,11 +1,13 @@
-package zinus.feh
+package zinus.feh.activity
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -19,8 +21,11 @@ import zinus.feh.DataOp.fetchFromLocal
 import zinus.feh.DataOp.fetchHeroNames
 import zinus.feh.DataOp.nuUnits
 import zinus.feh.DataOp.saveToLocal
+import zinus.feh.Helper
+import zinus.feh.R
 import zinus.feh.adapter.CheckStatAdapter
 import zinus.feh.bean.HeroBean
+import zinus.feh.database
 
 
 class CheckStatActivity : AppCompatActivity() {
@@ -49,7 +54,11 @@ class CheckStatActivity : AppCompatActivity() {
         for (i in contentAdapter?.header!!.indices) {
             expListView.expandGroup(i)
         }
-
+        expListView.setOnGroupClickListener(object: ExpandableListView.OnGroupClickListener {
+            override fun onGroupClick(p0: ExpandableListView?, p1: View?, p2: Int, p3: Long): Boolean {
+                return true
+            }
+        })
         database.onCreate(database.writableDatabase)
 
         doAsync {
@@ -80,12 +89,20 @@ class CheckStatActivity : AppCompatActivity() {
         val id = item?.itemId
         when(id) {
             R.id.action_settings -> 0
+            R.id.action_nation -> {
+                val intent: Intent = Intent(this, NationActivity::class.java)
+                startActivity(intent)
+            }
+            R.id.action_clear -> {
+                searchTxtView?.setText("")
+            }
         }
         return super.onOptionsItemSelected(item)
     }
 
     fun initMenuSearch() {
         val action = supportActionBar //get the actionbar
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
         action!!.setDisplayShowCustomEnabled(true) //enable it to display a
         // custom view in the action bar.
@@ -98,13 +115,13 @@ class CheckStatActivity : AppCompatActivity() {
         searchTxtView?.setOnItemClickListener { adapterView, view, i, l ->
             val v = view as TextView
             toast(v.text)
+            imm.hideSoftInputFromWindow(v.windowToken, InputMethodManager.HIDE_IMPLICIT_ONLY)
             initContent(v.text.toString())
         }
 
         searchTxtView?.requestFocus()
 
         //open the keyboard focused in the edtSearch
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(searchTxtView, InputMethodManager.SHOW_IMPLICIT)
     }
 

@@ -1,4 +1,28 @@
 <resources>
     <string name="app_name">feh</string>
-    <string name="search">alfonse</string>
+    <string name="search_hint">alfonse</string>
+    <string name="prompt_rarity">rarity</string>
+    <string name="prompt_merge">merge</string>
+    <string-array name="array_merge">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
+    <string name="prompt_boon">boon</string>
+    <string-array name="array_stat">
+        <item>hp</item>
+        <item>atk</item>
+        <item>spd</item>
+        <item>def</item>
+        <item>res</item>
+    </string-array>
+    <string name="prompt_bane">bane</string>
 </resources>

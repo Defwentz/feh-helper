@@ -8,8 +8,14 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_box"
+        android:id="@+id/action_clear"
+        android:icon="?attr/actionModeCloseDrawable"
+        android:title="clear"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_nation"
         android:icon="@android:drawable/ic_menu_myplaces"
         android:title="mybox"
         app:showAsAction="always" />
+
 </menu>
