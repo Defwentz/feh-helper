@@ -7,20 +7,49 @@
     android:layout_height="wrap_content"
     android:padding="8dp">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="@style/ListHeader"
-        android:text="alfonse"
-        />
-
     <LinearLayout
+        android:id="@+id/head"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/textView"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/ListHeader"
+            android:text="alfonse"
+            />
+
+        <EditText
+            android:id="@+id/et_nick"
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:layout_margin="10dp"
+            android:hint="nickname"
+            android:inputType="textPersonName"
+            android:textSize="20dp" />
+
+        <ImageView
+            android:id="@+id/btn_save"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_margin="10dp"
+            app:srcCompat="@android:drawable/ic_input_add" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
         android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
-        tools:layout_editor_absoluteX="307dp">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/head">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -28,12 +57,11 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/txt_rar"
+                android:id="@+id/txt_rar_mrg"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"
-                android:layout_weight="1"
-                android:text="@string/prompt_rarity"
+                android:text="@string/prompt_rar_mrg"
                 android:textAppearance="@style/ListChild"
                 app:layout_constraintStart_toEndOf="@+id/textView" />
 
@@ -45,16 +73,6 @@
                 android:layout_weight="1"
                 android:prompt="@string/prompt_rarity"
                 app:layout_constraintStart_toEndOf="@+id/txt_rar" />
-
-            <TextView
-                android:id="@+id/txt_mrg"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_margin="10dp"
-                android:layout_weight="1"
-                android:text="@string/prompt_merge"
-                android:textAppearance="@style/ListChild"
-                app:layout_constraintStart_toEndOf="@+id/rar_spinner" />
 
             <Spinner
                 android:id="@+id/mrg_spinner"
@@ -73,12 +91,11 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/txt_boon"
+                android:id="@+id/txt_boon_bane"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"
-                android:layout_weight="1"
-                android:text="@string/prompt_boon"
+                android:text="@string/prompt_bb"
                 android:textAppearance="@style/ListChild"
                 app:layout_constraintStart_toEndOf="@+id/mrg_spinner" />
 
@@ -93,17 +110,6 @@
                 android:prompt="@string/prompt_boon"
                 app:layout_constraintStart_toEndOf="@+id/txt_boon" />
 
-            <TextView
-                android:id="@+id/txt_bane"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_margin="10dp"
-                android:layout_weight="1"
-                android:text="@string/prompt_bane"
-                android:textAppearance="@style/ListChild"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/boon_spinner" />
-
             <Spinner
                 android:id="@+id/bane_spinner"
                 style="@style/SpinnerSelect"
@@ -114,12 +120,6 @@
                 android:prompt="@string/prompt_bane"
                 app:layout_constraintStart_toEndOf="@+id/txt_bane" />
 
-            <ImageView
-                android:id="@+id/btn_save"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                app:srcCompat="@android:drawable/ic_input_add" />
         </LinearLayout>
     </LinearLayout>
 

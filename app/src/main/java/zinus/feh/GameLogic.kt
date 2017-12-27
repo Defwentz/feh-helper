@@ -4,12 +4,21 @@ package zinus.feh
  * Created by macbookair on 11/10/17.
  */
 object GameLogic {
-    val GVs = listOf<List<Int>>(listOf(6,8,9,11,13,14,16,18,19,21,23,24),
-                                listOf(7,8,10,12,14,15,17,19,21,23,25,26),
-                                listOf(7,9,11,13,15,17,19,21,23,25,27,29),
-                                listOf(8,10,12,14,16,18,20,22,24,26,28,31),
-                                listOf(8,10,13,15,17,19,22,24,26,28,30,33,35))
+    val GVs = listOf<List<Int>>(listOf(6,8,9,11,13,14,16,18,19,21,23,24,26),
+                                listOf(7,8,10,12,14,15,17,19,21,23,25,26,28),
+                                listOf(7,9,11,13,15,17,19,21,23,25,27,29,31,33),
+                                listOf(8,10,12,14,16,18,20,22,24,26,28,31,33,35),
+                                listOf(8,10,13,15,17,19,22,24,26,28,30,33,35,37))
 
+    fun getGVs(rar: Int, grw: Int): Int {
+        if(grw >= GVs[rar].size) {
+            return GVs[rar][GVs[rar].size-1]
+        }
+        if(grw < 0) {
+            return GVs[rar][0]
+        }
+        return return GVs[rar][grw]
+    }
     val STAT = arrayListOf("hp", "atk", "spd", "def", "res")
     fun statColToInt(col: String): Int {
         for(i in STAT.indices) {
@@ -34,6 +43,11 @@ object GameLogic {
         val GVMod = arrayListOf<Int>(0,0,0,0,0)
         GVMod[boonI]++
         GVMod[baneI]--
+        return GVMod
+    }
+
+    fun getTotalGVMod(isBoon: Boolean): ArrayList<Int> {
+        val GVMod = arrayListOf<Int>(0,0,0,0,0)
         return GVMod
     }
 

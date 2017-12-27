@@ -7,10 +7,11 @@ import android.util.Log
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import zinus.feh.Helper
+import java.io.Serializable
 
 val header = "https://feheroes.gamepedia.com"
 
-class HeroBean {
+class HeroBean : Serializable {
     companion object {
         val TABLE_NAME = "Heroes"
         val COL_ID = "id"
@@ -64,16 +65,17 @@ class HeroBean {
         name = nameTD.attr("title")
         pageUrl = header + nameTD.attr("href")
 
-        wpnType = elements[4].attr("data-sort-value").toInt()
+        wpnType = elements[2].attr("data-sort-value").toInt()
         color = (wpnType-1) / 3
-        mvType = elements[5].attr("data-sort-value").toInt()
+        mvType = elements[3].attr("data-sort-value").toInt()
 
-        val relDtStr = elements[7].attr("data-sort-value")
-        if (relDtStr.equals("-")) {
-            releaseDate = 0
-        } else {
-            releaseDate = relDtStr.toInt()
-        }
+//        val relDtStr = elements[7].attr("data-sort-value")
+//        if (relDtStr.equals("-")) {
+//            releaseDate = 0
+//        } else {
+//            releaseDate = relDtStr.toInt()
+//        }
+        releaseDate = 0
 
         grabFromPage()
     }

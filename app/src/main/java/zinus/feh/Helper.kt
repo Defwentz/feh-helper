@@ -2,6 +2,8 @@ package zinus.feh
 
 import android.content.Context
 import android.net.ConnectivityManager
+import org.jetbrains.anko.runOnUiThread
+import org.jetbrains.anko.toast
 import java.net.URL
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -28,5 +30,9 @@ object Helper {
     fun getDateInt(): Int {
         val today = Calendar.getInstance().time
         return df.format(today).toInt()
+    }
+
+    fun toaster(ctxt: Context, msg: String) {
+        ctxt.runOnUiThread { toast(msg) }
     }
 }

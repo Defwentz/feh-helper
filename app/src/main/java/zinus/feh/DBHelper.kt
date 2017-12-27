@@ -61,9 +61,14 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "HeroesDB", null, 1)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // Here you can upgrade tables, as usual
-        db.dropTable(HeroBean.TABLE_NAME, true)
-        // db.dropTable(MHeroBean.TABLE_NAME, true)
+//        // Here you can upgrade tables, as usual
+//        db.dropTable(HeroBean.TABLE_NAME, true)
+//        // db.dropTable(MHeroBean.TABLE_NAME, true)
+//        onCreate(db)
+    }
+
+    fun upgradeTb(db: SQLiteDatabase, table_name: String) {
+        db.dropTable(table_name, true)
         onCreate(db)
     }
 }

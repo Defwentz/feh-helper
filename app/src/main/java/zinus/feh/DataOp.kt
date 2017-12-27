@@ -1,25 +1,34 @@
 package zinus.feh
 
+import android.content.Context
 import android.util.Log
-import org.jetbrains.anko.db.RowParser
-import org.jetbrains.anko.db.insert
-import org.jetbrains.anko.db.parseList
-import org.jetbrains.anko.db.select
+import com.afollestad.materialdialogs.MaterialDialog
+import org.jetbrains.anko.db.*
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.runOnUiThread
 import org.jsoup.Jsoup
 import zinus.feh.bean.HeroBean
 import zinus.feh.bean.MHeroBean
+
+
 
 /**
  * Created by macbookair on 11/10/17.
  */
 
 object DataOp {
+    var heroes: List<HeroBean>? = null
+
     fun nuUnits(): Boolean {
-        return true
+        return false
     }
 
     fun clearLocal(database: DBHelper) {
-        database.onUpgrade(database.writableDatabase, 0, 1)
+        database.upgradeTb(database.writableDatabase, HeroBean.TABLE_NAME)
+    }
+
+    fun clearNation(database: DBHelper) {
+        database.upgradeTb(database.writableDatabase, MHeroBean.TABLE_NAME)
     }
 
     fun fetchHeroNames(heroes: List<HeroBean>): List<String> {
@@ -28,25 +37,43 @@ object DataOp {
         return names
     }
 
-    fun fetchFromGamepedia(updateLocal: (List<HeroBean>) -> Any) {
+    fun fetchFromGamepedia(ctxt: Context, updateLocal: (List<HeroBean>) -> Any) {
 
         var heroes: MutableList<HeroBean> = mutableListOf<HeroBean>()
 
-        val htmlRaw = Helper.fetch_url("https://feheroes.gamepedia.com/Hero_List")
+        val htmlRaw = Helper.fetch_url("https://feheroes.gamepedia.com/Stats_Table")
         val htmlContent = Jsoup.parse(htmlRaw).getElementById("bodyContent")
         val htmlTable = htmlContent.getElementsByClass("hero-filter-element")
 
-        Log.d("abc", htmlTable.size.toString() )
+        ctxt.runOnUiThread {
+            val showMinMax = true
+            MaterialDialog.Builder(ctxt)
+                    .title(R.string.title_progress)
+                    .content(R.string.content_progress)
+                    .progress(false, htmlTable.size, showMinMax)
+                    .cancelable(false)
+                    .showListener {
+                        dialogInterface ->
+                        val dialog = dialogInterface as MaterialDialog
+                        doAsync {
+                            for (i in htmlTable.indices) {
 
-        for (i in htmlTable.indices) {
-
-            var hero = HeroBean()
-            hero.initFromHTML(i.toLong(), htmlTable[i])
-            // Log.d("abc", hero.toString() )
-            heroes.add(hero)
+                                var hero = HeroBean()
+                                hero.initFromHTML(i.toLong(), htmlTable[i])
+                                // Log.d("abc", hero.toString() )
+                                heroes.add(hero)
+                                dialog.incrementProgress(1)
+                            }
+                            DataOp.heroes = heroes
+                            runOnUiThread {
+                                dialog.setContent(R.string.done)
+                                dialog.dismiss()
+                            }
+                            updateLocal(heroes)
+                        }
+                    }
+                    .show()
         }
-
-        updateLocal(heroes)
     }
 
     fun fetchFromLocal(database: DBHelper, updateLocal: (List<HeroBean>) -> Any) {
@@ -62,6 +89,7 @@ object DataOp {
                 val result = this.parseList(rowParser)
                 Log.e("abc", result.size.toString())
 
+                DataOp.heroes = result
                 updateLocal(result)
             }
         }
@@ -107,6 +135,32 @@ object DataOp {
 
                 updateLocal(result)
             }
+        }
+    }
+
+    fun fetchMyHeroesFromLocal(database: DBHelper, heroName: String, updateLocal: (List<MHeroBean>) -> Any) {
+        database.use {
+            select(MHeroBean.TABLE_NAME).
+                    whereArgs("(${MHeroBean.COL_NAME} = {heroName})",
+                    "heroName" to heroName).
+                    exec {
+                val rowParser = object : RowParser<MHeroBean> {
+                    override fun parseRow(columns: Array<Any?>): MHeroBean {
+                        return MHeroBean.initFromDB(columns)
+                    }
+                }
+                val result = this.parseList(rowParser)
+
+                updateLocal(result)
+            }
+        }
+    }
+
+    fun rmFromNation(database: DBHelper, id: Long, update: () -> Any) {
+        database.use {
+            delete(MHeroBean.TABLE_NAME,
+                    "${MHeroBean.COL_ID} = {mid}",
+                    "mid" to id)
         }
     }
 }

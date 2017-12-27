@@ -15,10 +15,12 @@ import android.widget.ExpandableListView
 import android.widget.TextView
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.toast
+import zinus.feh.DataOp
 import zinus.feh.DataOp.clearLocal
 import zinus.feh.DataOp.fetchFromGamepedia
 import zinus.feh.DataOp.fetchFromLocal
 import zinus.feh.DataOp.fetchHeroNames
+import zinus.feh.DataOp.heroes
 import zinus.feh.DataOp.nuUnits
 import zinus.feh.DataOp.saveToLocal
 import zinus.feh.Helper
@@ -30,8 +32,10 @@ import zinus.feh.database
 
 class CheckStatActivity : AppCompatActivity() {
 
-    var heroes: List<HeroBean>? = null
-    var names:  MutableList<String> = mutableListOf<String>()
+    companion object {
+        val REQ_DB = 1
+        val KEY_H = "heroes"
+    }
     var autoCmpAdapter : ArrayAdapter<String>? = null
     var searchTxtView : AutoCompleteTextView? = null
 
@@ -63,17 +67,13 @@ class CheckStatActivity : AppCompatActivity() {
 
         doAsync {
             if (Helper.isNetworkConnected(this@CheckStatActivity) && nuUnits()) {
-                fetchFromGamepedia({ heroes ->
-                    runOnUiThread { toast("fetch from Internet complete.") }
-                    this@CheckStatActivity.heroes = heroes
+                fetchFromGamepedia(this@CheckStatActivity, { heroes ->
                     clearLocal(database)
                     saveToLocal(database, heroes)
                     updateAutoCmp(heroes)
                 })
             } else {
                 fetchFromLocal(database, { heroes ->
-                    runOnUiThread { toast("fetch from local db complete.") }
-                    this@CheckStatActivity.heroes = heroes
                     updateAutoCmp(heroes)
                 })
             }
@@ -88,16 +88,35 @@ class CheckStatActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         val id = item?.itemId
         when(id) {
-            R.id.action_settings -> 0
+            R.id.action_settings -> {
+                val intent: Intent = Intent(this, SettingsActivity::class.java)
+                startActivityForResult(intent, REQ_DB)
+            }
             R.id.action_nation -> {
                 val intent: Intent = Intent(this, NationActivity::class.java)
                 startActivity(intent)
             }
             R.id.action_clear -> {
                 searchTxtView?.setText("")
+                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.showSoftInput(searchTxtView, InputMethodManager.SHOW_IMPLICIT)
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when(requestCode) {
+            REQ_DB -> {
+                doAsync {
+                    updateAutoCmp(DataOp.heroes!!)
+                }
+            }
+            else -> {
+
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     fun initMenuSearch() {
@@ -110,7 +129,8 @@ class CheckStatActivity : AppCompatActivity() {
         action.setDisplayShowTitleEnabled(false) //hide the title
 
         searchTxtView = action.customView.findViewById<AutoCompleteTextView>(R.id.txtview_search)
-        autoCmpAdapter = ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, names)
+        autoCmpAdapter = ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line,
+                arrayListOf<String>())
         searchTxtView?.setAdapter<ArrayAdapter<String>>(autoCmpAdapter)
         searchTxtView?.setOnItemClickListener { adapterView, view, i, l ->
             val v = view as TextView
@@ -135,8 +155,8 @@ class CheckStatActivity : AppCompatActivity() {
     }
 
     fun updateAutoCmp(heroes: List<HeroBean>) {
-        names.clear()
-        names.addAll(fetchHeroNames(heroes))
+        autoCmpAdapter?.clear()
+        autoCmpAdapter?.addAll(fetchHeroNames(heroes))
         autoCmpAdapter?.notifyDataSetChanged()
     }
 }

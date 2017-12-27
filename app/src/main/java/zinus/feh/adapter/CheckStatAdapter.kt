@@ -1,13 +1,19 @@
 package zinus.feh.adapter
 
 import android.content.Context
+import android.text.Html
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.afollestad.materialdialogs.MaterialDialog
+import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.layoutInflater
+import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.sdk25.coroutines.onClick
+import org.jetbrains.anko.sdk25.coroutines.onFocusChange
+import zinus.feh.*
 import zinus.feh.GameLogic.GVs
 import zinus.feh.GameLogic.MrgOrder
 import zinus.feh.GameLogic.RarOrder
@@ -15,11 +21,8 @@ import zinus.feh.GameLogic.STAT
 import zinus.feh.GameLogic.getGVMod
 import zinus.feh.GameLogic.statColToInt
 import zinus.feh.GameLogic.statMap
-import zinus.feh.Helper
-import zinus.feh.R
 import zinus.feh.bean.HeroBean
 import zinus.feh.bean.MHeroBean
-import zinus.feh.database
 import java.util.*
 
 
@@ -36,6 +39,9 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
     val baseStats: ArrayList<ArrayList<String>> = ArrayList<ArrayList<String>>()
     val maxStats: ArrayList<ArrayList<String>> = ArrayList<ArrayList<String>>()
     var hero: HeroBean? = hero
+    var mHeroes: ArrayList<MHeroBean> = ArrayList<MHeroBean>()
+
+    var nickEt: EditText? = null
 
     val inflater: LayoutInflater? = contxt.layoutInflater
     val ctxt: Context = contxt
@@ -124,6 +130,42 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
                     baseStat[j] = (baseStat[j].toInt() + gvs[j-1]).toString()
                 }
             }
+
+            if (i == 5) {
+                val unchangedbaseStat = baseStats[6-i].clone() as ArrayList<String>
+
+                val baneGvs = listOf<Int>(GameLogic.getGVs(i-1,hero!!.hpgrowth-1),
+                        GameLogic.getGVs(i-1,hero!!.atkgrowth-1),
+                        GameLogic.getGVs(i-1,hero!!.spdgrowth-1),
+                        GameLogic.getGVs(i-1,hero!!.defgrowth-1),
+                        GameLogic.getGVs(i-1,hero!!.resgrowth-1))
+                val boonGvs = listOf<Int>(GameLogic.getGVs(i-1,hero!!.hpgrowth+1),
+                        GameLogic.getGVs(i-1,hero!!.atkgrowth+1),
+                        GameLogic.getGVs(i-1,hero!!.spdgrowth+1),
+                        GameLogic.getGVs(i-1,hero!!.defgrowth+1),
+                        GameLogic.getGVs(i-1,hero!!.resgrowth+1))
+
+                for (j in baseStat.indices) {
+                    if(j!=0) {
+                        val baneStatInt = (unchangedbaseStat[j].toInt() + baneGvs[j-1]-1)
+                        val boonStatInt = (unchangedbaseStat[j].toInt() + boonGvs[j-1]+1)
+                        val baseStatInt = baseStat[j].toInt()
+                        if(baseStatInt - baneStatInt == 4) {
+                            baseStat[j] =  "<font color=#ff0000>$baneStatInt</font><font color=#000000>/${baseStat[j]}/</font>"
+                        } else {
+                            baseStat[j] = "<font color=#000000>${baneStatInt.toString() + "/" + baseStat[j] + "/"}</font>"
+                        }
+
+                        if(boonStatInt - baseStatInt == 4) {
+                            baseStat[j] = baseStat[j] + "<font color=#00ff00>$boonStatInt</font>"
+                        } else {
+                            baseStat[j] = baseStat[j] + "<font color=#000000>$boonStatInt</font>"
+                        }
+                    }
+                }
+            }
+
+
             maxStats.add(baseStat)
             i--
         }
@@ -132,7 +174,8 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
     fun spinnerSelect(rarSpinner: Spinner,
                       mrgSpinner: Spinner,
                       boonSpinner: Spinner,
-                      baneSpinner: Spinner) {
+                      baneSpinner: Spinner,
+                      nick: EditText) {
         val rarStr = rarSpinner.selectedItem as String
         val rar = rarStr.toInt()
 
@@ -143,15 +186,16 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
 
         val bane = baneSpinner.selectedItem as String
 
-        computeSelect(rar, mrg, boon, bane)
+        computeSelect(rar, mrg, boon, bane, nick.text.toString())
         this.notifyDataSetChanged()
     }
 
-    fun computeSelect(rar: Int, mrg: Int, boon: String, bane: String) {
+    fun computeSelect(rar: Int, mrg: Int, boon: String, bane: String, nick: String) {
         if(maxStats.size < 2) {}
         else {
             select.clear()
-            selHero = MHeroBean(0,hero!!.name,"giraffe",
+
+            selHero = MHeroBean(0,hero!!.name, nick,
                     rar,
                     mrg,
                     Helper.getDateInt(),
@@ -226,12 +270,17 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
         this.hero = hero
         header[0] = hero.name
 
+        mHeroes.clear()
+        DataOp.fetchMyHeroesFromLocal(ctxt.database, hero.name, { heroes ->
+            mHeroes.addAll(heroes)
+        })
+
         baseStats.clear()
         maxStats.clear()
         // order can't change
         computeBaseStats()
         computeMaxStats()
-        computeSelect(prevRar,prevMrg,prevBoon,prevBane)
+        computeSelect(prevRar,prevMrg,prevBoon,prevBane, "")
         
         var r = 5
         raritys.clear()
@@ -280,10 +329,15 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
 
         when(groupPosition) {
             0 -> {
-                val rarSpinner = retView!!.findViewById<Spinner>(R.id.rar_spinner)
-                val mrgSpinner = retView!!.findViewById<Spinner>(R.id.mrg_spinner)
-                val boonSpinner = retView!!.findViewById<Spinner>(R.id.boon_spinner)
-                val baneSpinner = retView!!.findViewById<Spinner>(R.id.bane_spinner)
+                nickEt = retView.findViewById<EditText>(R.id.et_nick)
+                nickEt!!.onFocusChange { v, hasFocus ->
+                    Log.e("abc", "focus lost")
+                }
+
+                val rarSpinner = retView.findViewById<Spinner>(R.id.rar_spinner)
+                val mrgSpinner = retView.findViewById<Spinner>(R.id.mrg_spinner)
+                val boonSpinner = retView.findViewById<Spinner>(R.id.boon_spinner)
+                val baneSpinner = retView.findViewById<Spinner>(R.id.bane_spinner)
                 rarSpinner.setAdapter(rarAdapter)
                 rarSpinner.setSelection(5-prevRar)
 
@@ -293,7 +347,7 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
                         if(sel.equals(prevRar.toString())) {
 
                         } else {
-                            spinnerSelect(rarSpinner, mrgSpinner, boonSpinner, baneSpinner)
+                            spinnerSelect(rarSpinner, mrgSpinner, boonSpinner, baneSpinner, nickEt!!)
                             prevRar = sel.toInt()
                         }
                     }
@@ -308,7 +362,7 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
                         if(sel.equals(prevMrg)) {
 
                         } else {
-                            spinnerSelect(rarSpinner, mrgSpinner, boonSpinner, baneSpinner)
+                            spinnerSelect(rarSpinner, mrgSpinner, boonSpinner, baneSpinner, nickEt!!)
                             prevMrg = sel.toInt()
                         }
                     }
@@ -323,7 +377,7 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
                         if(sel.equals(prevBoon)) {
 
                         } else {
-                            spinnerSelect(rarSpinner, mrgSpinner, boonSpinner, baneSpinner)
+                            spinnerSelect(rarSpinner, mrgSpinner, boonSpinner, baneSpinner, nickEt!!)
                             prevBoon = sel
                         }
                     }
@@ -338,7 +392,7 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
                         if(sel.equals(prevBane)) {
 
                         } else {
-                            spinnerSelect(rarSpinner, mrgSpinner, boonSpinner, baneSpinner)
+                            spinnerSelect(rarSpinner, mrgSpinner, boonSpinner, baneSpinner, nickEt!!)
                             prevBane = sel
                         }
                     }
@@ -348,9 +402,20 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
                     }
                 }
 
-                val saveBtn = retView!!.findViewById<ImageView>(R.id.btn_save)
+                val saveBtn = retView?.findViewById<ImageView>(R.id.btn_save)
                 saveBtn.onClick {
+
+                    if(nickEt!!.text.toString().isNotBlank()) {
+                        selHero?.nickname = nickEt!!.text.toString()
+                    } else {
+
+                    }
                     selHero?.saveIntoDB(ctxt.database)
+                    ctxt.runOnUiThread {
+                        Helper.toaster(ctxt, "saved" +
+                            "")
+                        nickEt!!.text.clear()
+                    }
                 }
 
             }
@@ -359,7 +424,7 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
             }
         }
 
-        return retView!!
+        return retView
     }
 
     override fun isChildSelectable(groupPosition: Int, childPosition: Int): Boolean {
@@ -377,6 +442,7 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
             }
             1 -> return baseStats[childPosition]
             2 -> return maxStats[childPosition]
+            3 -> return mHeroes[childPosition]
             else -> return 0
         }
     }
@@ -396,6 +462,7 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
             }
             1 -> return baseStats.size
             2 -> return maxStats.size
+            3 -> return mHeroes.size
             else -> return 0
         }
     }
@@ -406,32 +473,90 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
                               isLastChild: Boolean,
                               convertView: View?,
                               parent: ViewGroup?): View {
-        var stat: ArrayList<String>? = null
+        var stat: ArrayList<String>?
         when (groupPosition) {
             0,1,2 -> {
                 stat = getChild(groupPosition, childPosition) as ArrayList<String>
+            }
+            3 -> {
+                stat = ArrayList<String>()
+                val mHero = getChild(groupPosition, childPosition) as MHeroBean
+                stat.add(mHero.toDes())
             }
             else -> return convertView!!
         }
         var retView: View?
         if (convertView == null) {
-            retView = inflater?.inflate(R.layout.child_base_stat, null)
+            if(groupPosition == 3) {
+                retView = inflater!!.inflate(R.layout.item_nation, null)
+            } else {
+                retView = inflater!!.inflate(R.layout.child_base_stat, null)
+            }
+            retView.setTag(groupPosition)
         } else {
-            retView = convertView
+            if(convertView.tag == groupPosition) {
+                retView = convertView
+            } else if ((convertView.tag as Int) < 3 && groupPosition < 3) {
+                retView = convertView
+            } else {
+                if(groupPosition == 3) {
+                    retView = inflater!!.inflate(R.layout.item_nation, null)
+                } else {
+                    retView = inflater!!.inflate(R.layout.child_base_stat, null)
+                }
+                retView.setTag(groupPosition)
+            }
+        }
+        if(groupPosition == 3) {
+            val destv = retView!!.findViewById<TextView>(R.id.tv_des)
+            val delBtn = retView?.findViewById<Button>(R.id.btn_delete)
+            val mHero = getChild(groupPosition, childPosition) as MHeroBean
+
+            retView!!.setOnClickListener {
+                ctxt.runOnUiThread { Helper.toaster(ctxt, "what?") }
+            }
+            destv?.setText(stat[0])
+            delBtn?.onClick {
+                MaterialDialog.Builder(ctxt)
+                        .title(R.string.title_wipe_nation)
+                        .content(R.string.summ_wipe_nation)
+                        .positiveText(R.string.yes)
+                        .negativeText(R.string.no)
+                        .onPositive { dialog, which ->
+                            doAsync {
+                                mHeroes!!.removeAt(childPosition)
+                                DataOp.rmFromNation(ctxt.database, mHero.id, {
+                                    Helper.toaster(ctxt, mHero.namepls() + " went home.")
+                                })
+                                ctxt.runOnUiThread { this@CheckStatAdapter.notifyDataSetChanged() }
+                            }
+                        }
+                        .show()
+            }
+            return retView!!
         }
 
-        val rartv = retView?.findViewById<TextView>(R.id.txt_rar)
-        val hptv = retView?.findViewById<TextView>(R.id.txt_hp)
-        val atktv = retView?.findViewById<TextView>(R.id.txt_atk)
-        val spdtv = retView?.findViewById<TextView>(R.id.txt_spd)
-        val deftv = retView?.findViewById<TextView>(R.id.txt_def)
-        val restv = retView?.findViewById<TextView>(R.id.txt_res)
-        rartv!!.setText(stat[0])
-        hptv!!.setText(stat[1])
-        atktv!!.setText(stat[2])
-        spdtv!!.setText(stat[3])
-        deftv!!.setText(stat[4])
-        restv!!.setText(stat[5])
+        val rartv = retView!!.findViewById<TextView>(R.id.txt_rar)
+        val hptv = retView!!.findViewById<TextView>(R.id.txt_hp)
+        val atktv = retView!!.findViewById<TextView>(R.id.txt_atk)
+        val spdtv = retView!!.findViewById<TextView>(R.id.txt_spd)
+        val deftv = retView!!.findViewById<TextView>(R.id.txt_def)
+        val restv = retView!!.findViewById<TextView>(R.id.txt_res)
+        if(groupPosition == 2 && childPosition == 1) {
+            rartv!!.setText(Html.fromHtml(stat[0]))
+            hptv!!.setText(Html.fromHtml(stat[1]))
+            atktv!!.setText(Html.fromHtml(stat[2]))
+            spdtv!!.setText(Html.fromHtml(stat[3]))
+            deftv!!.setText(Html.fromHtml(stat[4]))
+            restv!!.setText(Html.fromHtml(stat[5]))
+        } else {
+            rartv!!.setText(stat[0])
+            hptv!!.setText(stat[1])
+            atktv!!.setText(stat[2])
+            spdtv!!.setText(stat[3])
+            deftv!!.setText(stat[4])
+            restv!!.setText(stat[5])
+        }
         return retView!!
     }
 

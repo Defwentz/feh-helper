@@ -7,6 +7,7 @@ import zinus.feh.GameLogic
 /**
  * Created by macbookair on 11/10/17.
  */
+
 class MHeroBean(id:Long, name:String, nick:String, rar:Int, mrg:Int, date:Int, boon:Int, bane:Int) {
     companion object {
         val TABLE_NAME = "MyHeroes"
@@ -47,12 +48,36 @@ class MHeroBean(id:Long, name:String, nick:String, rar:Int, mrg:Int, date:Int, b
         return "MHeroBean(name='$name', nickname='$nickname', id=$id, rarity=$rarity, merge=$merge, inputDate=$inputDate, boon=$boon, bane=$bane)"
     }
 
-    fun toDes(): String {
-        if(merge == 0) {
-            return "$name aka $nickname, $rarity*, +${GameLogic.STAT[boon]}/-${GameLogic.STAT[bane]}"
+    fun namepls(): String {
+        if(nickname.isNotBlank()) {
+            return nickname
         } else {
-            return "$name aka $nickname, $rarity*(+$merge), +${GameLogic.STAT[boon]}/-${GameLogic.STAT[bane]}"
+            return name
         }
+    }
+
+    fun toDes(): String {
+        var nickStr: String
+        if(nickname.isNotBlank()) {
+            nickStr = " aka $nickname"
+        } else {
+            nickStr = ""
+        }
+
+        var mrgStr: String
+        if(merge == 0) {
+            mrgStr = ""
+        } else {
+            mrgStr = "(+$merge)"
+        }
+
+        var bbStr: String
+        if(boon == bane) {
+            bbStr = "netural"
+        } else {
+            bbStr = "+${GameLogic.STAT[boon]}/-${GameLogic.STAT[bane]}"
+        }
+        return "$name$nickStr, $rarity*$mrgStr, $bbStr"
     }
 
     fun saveIntoDB(database: DBHelper) {
