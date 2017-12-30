@@ -256,8 +256,15 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
                 }
                 m++
             }
+			
+			var rarStr = rar.toString()
+			if (mrg == 0) {
+			
+			} else {
+                rarStr += "(+" + mrg.toString() + ")"
+			}
 
-            select.addAll(listOf(rar.toString(),
+            select.addAll(listOf(rarStr,
                     baseStat[STAT[0]].toString(),
                     baseStat[STAT[1]].toString(),
                     baseStat[STAT[2]].toString(),
@@ -406,16 +413,17 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
                 saveBtn.onClick {
 
                     if(nickEt!!.text.toString().isNotBlank()) {
-                        selHero?.nickname = nickEt!!.text.toString()
+                        selHero!!.nickname = nickEt!!.text.toString()
                     } else {
 
                     }
-                    selHero?.saveIntoDB(ctxt.database)
-                    ctxt.runOnUiThread {
-                        Helper.toaster(ctxt, "saved" +
-                            "")
-                        nickEt!!.text.clear()
-                    }
+                    selHero!!.saveIntoDB(ctxt.database)
+                    Helper.toaster(ctxt, "saved" +
+                        "")
+                    nickEt!!.text.clear()
+
+                    mHeroes!!.add(selHero!!)
+                    this@CheckStatAdapter.notifyDataSetChanged()
                 }
 
             }

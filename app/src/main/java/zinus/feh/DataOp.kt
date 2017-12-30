@@ -64,12 +64,20 @@ object DataOp {
                                 heroes.add(hero)
                                 dialog.incrementProgress(1)
                             }
-                            DataOp.heroes = heroes
-                            runOnUiThread {
-                                dialog.setContent(R.string.done)
-                                dialog.dismiss()
+
+                            if(heroes.size != 0) {
+                                DataOp.heroes = heroes
+                                runOnUiThread {
+                                    dialog.setContent(R.string.done)
+                                    dialog.dismiss()
+                                }
+                                updateLocal(heroes)
+                            } else {
+                                runOnUiThread {
+                                    dialog.setContent("something is wrong, fetched nothing")
+                                    dialog.dismiss()
+                                }
                             }
-                            updateLocal(heroes)
                         }
                     }
                     .show()

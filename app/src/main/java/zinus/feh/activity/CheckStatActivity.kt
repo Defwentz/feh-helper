@@ -41,6 +41,8 @@ class CheckStatActivity : AppCompatActivity() {
 
     var contentAdapter: CheckStatAdapter? = null
 
+    var currentHero: HeroBean? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_check_stat)
@@ -78,6 +80,17 @@ class CheckStatActivity : AppCompatActivity() {
                 })
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if(currentHero != null) {
+            contentAdapter?.updateData(currentHero!!)
+            contentAdapter?.notifyDataSetChanged()
+        } else {
+
+        }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -148,6 +161,7 @@ class CheckStatActivity : AppCompatActivity() {
     fun initContent(name: String) {
         for(hero in heroes!!) {
             if(name.equals(hero.name)) {
+                currentHero = hero
                 contentAdapter?.updateData(hero)
                 contentAdapter?.notifyDataSetChanged()
             }
