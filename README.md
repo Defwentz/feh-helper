@@ -1,9 +1,9 @@
 # feh-helper
-fire emblem heroes Android helper app in development, for fun i guess
+fire emblem heroes Android helper app in development, for fun i guess, and no need for manual update.
 
 features i want:
 
-- [x] auto update from gamepedia
+- [x] auto update from gamepedia !
 - [x] check IV
 - [x] save IV
 - [x] lookat my heroes
