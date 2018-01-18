@@ -6,7 +6,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import org.jetbrains.anko.db.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.runOnUiThread
-import org.jsoup.Jsoup
+import org.json.JSONObject
 import zinus.feh.bean.HeroBean
 import zinus.feh.bean.MHeroBean
 
@@ -41,25 +41,34 @@ object DataOp {
 
         var heroes: MutableList<HeroBean> = mutableListOf<HeroBean>()
 
-        val htmlRaw = Helper.fetch_url("https://feheroes.gamepedia.com/Stats_Table")
-        val htmlContent = Jsoup.parse(htmlRaw).getElementById("bodyContent")
-        val htmlTable = htmlContent.getElementsByClass("hero-filter-element")
+        val retJsonStr = Helper.fetch_url("http://feheroes.gamepedia.com/api.php?action=query&format=json&prop=&list=categorymembers&meta=&titles=&cmtitle=+Category%3A+Heroes&cmlimit=max")
+        val retJson = JSONObject(retJsonStr)
+        val arrayJson = retJson.getJSONObject("query").getJSONArray("categorymembers")
 
+        for (i in (arrayJson.length() - 1) downTo 0) {
+            val json: JSONObject = arrayJson[i] as JSONObject
+            if(json.getInt("ns") == 0) {
+
+            } else {
+                arrayJson.remove(i)
+
+            }
+        }
         ctxt.runOnUiThread {
             val showMinMax = true
             MaterialDialog.Builder(ctxt)
                     .title(R.string.title_progress)
                     .content(R.string.content_progress)
-                    .progress(false, htmlTable.size, showMinMax)
+                    .progress(false, arrayJson.length(), showMinMax)
                     .cancelable(false)
                     .showListener {
                         dialogInterface ->
                         val dialog = dialogInterface as MaterialDialog
                         doAsync {
-                            for (i in htmlTable.indices) {
-
+                            for (i in 0..(arrayJson.length() - 1)) {
+                                val json: JSONObject = arrayJson[i] as JSONObject
                                 var hero = HeroBean()
-                                hero.initFromHTML(i.toLong(), htmlTable[i])
+                                hero.initFromJSON(i.toLong(), json)
                                 // Log.d("abc", hero.toString() )
                                 heroes.add(hero)
                                 dialog.incrementProgress(1)

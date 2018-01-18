@@ -42,6 +42,10 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
     var mHeroes: ArrayList<MHeroBean> = ArrayList<MHeroBean>()
 
     var nickEt: EditText? = null
+    var rarSpinner: Spinner? = null
+    var mrgSpinner: Spinner? = null
+    var boonSpinner: Spinner? = null
+    var baneSpinner: Spinner? = null
 
     val inflater: LayoutInflater? = contxt.layoutInflater
     val ctxt: Context = contxt
@@ -273,6 +277,18 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
         }
     }
 
+    fun clearSelect() {
+        prevRar = 5
+        prevMrg = 0
+        prevBoon = "hp"
+        prevBane = "hp"
+        rarSpinner!!.setSelection(0)
+        mrgSpinner!!.setSelection(0)
+        boonSpinner!!.setSelection(0)
+        baneSpinner!!.setSelection(0)
+        nickEt!!.text.clear()
+    }
+
     fun updateData(hero: HeroBean) {
         this.hero = hero
         header[0] = hero.name
@@ -284,11 +300,12 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
 
         baseStats.clear()
         maxStats.clear()
+        clearSelect()
         // order can't change
         computeBaseStats()
         computeMaxStats()
         computeSelect(prevRar,prevMrg,prevBoon,prevBane, "")
-        
+
         var r = 5
         raritys.clear()
         while (r >= hero.minrarity) {
@@ -341,20 +358,20 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
                     Log.e("abc", "focus lost")
                 }
 
-                val rarSpinner = retView.findViewById<Spinner>(R.id.rar_spinner)
-                val mrgSpinner = retView.findViewById<Spinner>(R.id.mrg_spinner)
-                val boonSpinner = retView.findViewById<Spinner>(R.id.boon_spinner)
-                val baneSpinner = retView.findViewById<Spinner>(R.id.bane_spinner)
-                rarSpinner.setAdapter(rarAdapter)
-                rarSpinner.setSelection(5-prevRar)
+                rarSpinner = retView.findViewById<Spinner>(R.id.rar_spinner)
+                mrgSpinner = retView.findViewById<Spinner>(R.id.mrg_spinner)
+                boonSpinner = retView.findViewById<Spinner>(R.id.boon_spinner)
+                baneSpinner = retView.findViewById<Spinner>(R.id.bane_spinner)
+                rarSpinner!!.setAdapter(rarAdapter)
+                rarSpinner!!.setSelection(5-prevRar)
 
-                rarSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+                rarSpinner!!.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
                     override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                        val sel = rarSpinner.selectedItem as String
+                        val sel = rarSpinner!!.selectedItem as String
                         if(sel.equals(prevRar.toString())) {
 
                         } else {
-                            spinnerSelect(rarSpinner, mrgSpinner, boonSpinner, baneSpinner, nickEt!!)
+                            spinnerSelect(rarSpinner!!, mrgSpinner!!, boonSpinner!!, baneSpinner!!, nickEt!!)
                             prevRar = sel.toInt()
                         }
                     }
@@ -363,13 +380,13 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
                         Log.e("abc", "nothign select")
                     }
                 }
-                mrgSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+                mrgSpinner!!.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
                     override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                        val sel = mrgSpinner.selectedItem as String
+                        val sel = mrgSpinner!!.selectedItem as String
                         if(sel.equals(prevMrg)) {
 
                         } else {
-                            spinnerSelect(rarSpinner, mrgSpinner, boonSpinner, baneSpinner, nickEt!!)
+                            spinnerSelect(rarSpinner!!, mrgSpinner!!, boonSpinner!!, baneSpinner!!, nickEt!!)
                             prevMrg = sel.toInt()
                         }
                     }
@@ -378,13 +395,13 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
                         Log.e("abc", "nothign select")
                     }
                 }
-                boonSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+                boonSpinner!!.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
                     override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                        val sel = boonSpinner.selectedItem as String
+                        val sel = boonSpinner!!.selectedItem as String
                         if(sel.equals(prevBoon)) {
 
                         } else {
-                            spinnerSelect(rarSpinner, mrgSpinner, boonSpinner, baneSpinner, nickEt!!)
+                            spinnerSelect(rarSpinner!!, mrgSpinner!!, boonSpinner!!, baneSpinner!!, nickEt!!)
                             prevBoon = sel
                         }
                     }
@@ -393,13 +410,13 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
                         Log.e("abc", "nothign select")
                     }
                 }
-                baneSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+                baneSpinner!!.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
                     override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                        val sel = baneSpinner.selectedItem as String
+                        val sel = baneSpinner!!.selectedItem as String
                         if(sel.equals(prevBane)) {
 
                         } else {
-                            spinnerSelect(rarSpinner, mrgSpinner, boonSpinner, baneSpinner, nickEt!!)
+                            spinnerSelect(rarSpinner!!, mrgSpinner!!, boonSpinner!!, baneSpinner!!, nickEt!!)
                             prevBane = sel
                         }
                     }
@@ -420,7 +437,8 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
                     selHero!!.saveIntoDB(ctxt.database)
                     Helper.toaster(ctxt, "saved" +
                         "")
-                    nickEt!!.text.clear()
+
+                    clearSelect()
 
                     mHeroes!!.add(selHero!!)
                     this@CheckStatAdapter.notifyDataSetChanged()

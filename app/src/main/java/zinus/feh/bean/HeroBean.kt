@@ -4,8 +4,8 @@ package zinus.feh.bean
  * Created by macbookair on 11/9/17.
  */
 import android.util.Log
+import org.json.JSONObject
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
 import zinus.feh.Helper
 import java.io.Serializable
 
@@ -56,34 +56,27 @@ class HeroBean : Serializable {
     var defgrowth: Int = 0
     var resgrowth: Int = 0
 
-    fun initFromHTML(_id: Long, html: Element) {
+    fun initFromJSON(_id: Long, json: JSONObject) {
         id = _id
-
-        val elements = html.getElementsByTag("td")
-
-        val nameTD = elements[1].getElementsByTag("a").first()
-        name = nameTD.attr("title")
-        pageUrl = header + nameTD.attr("href")
-
-        wpnType = elements[2].attr("data-sort-value").toInt()
-        color = (wpnType-1) / 3
-        mvType = elements[3].attr("data-sort-value").toInt()
-
-//        val relDtStr = elements[7].attr("data-sort-value")
-//        if (relDtStr.equals("-")) {
-//            releaseDate = 0
-//        } else {
-//            releaseDate = relDtStr.toInt()
-//        }
-        releaseDate = 0
-
+        name = json.getString("title")
+        pageUrl = header + "/" + name.replace(" ", "_")
         grabFromPage()
     }
 
     fun grabFromPage() {
+
+//        wpnType = elements[2].attr("data-sort-value").toInt()
+//        color = (wpnType-1) / 3
+//        mvType = elements[3].attr("data-sort-value").toInt()
+//
+//        releaseDate = 0
+
+
         val htmlRaw = Helper.fetch_url(pageUrl)
         val htmlContent = Jsoup.parse(htmlRaw).getElementById("mw-content-text")
+
         val htmlTables = htmlContent.getElementsByTag("table")
+
 
         val baseTable = htmlTables[2]
         val growthTable = htmlTables[4]
