@@ -102,6 +102,9 @@
     <string name="title_wipe_nation">wipe data</string>
     <string name="summ_wipe_nation">clear my heroes data</string>
 
+    <string name="title_send_home">send home</string>
+    <string name="summ_send_home">send this hero home</string>
+
     <string-array name="multi_select_list_preference_default_value" />
 
     <string name="pref_title_system_sync_settings">System sync settings</string>

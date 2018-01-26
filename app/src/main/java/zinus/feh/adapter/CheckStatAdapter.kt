@@ -287,6 +287,12 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
         boonSpinner!!.setSelection(0)
         baneSpinner!!.setSelection(0)
         nickEt!!.text.clear()
+        selHero = MHeroBean(0,hero!!.name, "",
+                5,
+                0,
+                Helper.getDateInt(),
+                statColToInt(prevBoon),
+                statColToInt(prevBane))
     }
 
     fun updateData(hero: HeroBean) {
@@ -434,14 +440,16 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
                     } else {
 
                     }
-                    selHero!!.saveIntoDB(ctxt.database)
-                    Helper.toaster(ctxt, "saved" +
-                        "")
+                    saveBtn.isEnabled = false
+                    selHero!!.saveIntoDB(ctxt.database, {mhero ->
+                        Helper.toaster(ctxt, "saved")
+                        Log.e("abc", mhero.toString())
+                        mHeroes!!.add(mhero)
+                        clearSelect()
+                        saveBtn.isEnabled = true
+                        this@CheckStatAdapter.notifyDataSetChanged()
 
-                    clearSelect()
-
-                    mHeroes!!.add(selHero!!)
-                    this@CheckStatAdapter.notifyDataSetChanged()
+                    })
                 }
 
             }
@@ -539,22 +547,22 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
             val mHero = getChild(groupPosition, childPosition) as MHeroBean
 
             retView!!.setOnClickListener {
-                ctxt.runOnUiThread { Helper.toaster(ctxt, "what?") }
+                ctxt.runOnUiThread { Helper.toaster(ctxt, "what?" + mHero.id + ";" + childPosition) }
             }
             destv?.setText(stat[0])
             delBtn?.onClick {
                 MaterialDialog.Builder(ctxt)
-                        .title(R.string.title_wipe_nation)
-                        .content(R.string.summ_wipe_nation)
+                        .title(R.string.title_send_home)
+                        .content(R.string.summ_send_home)
                         .positiveText(R.string.yes)
                         .negativeText(R.string.no)
                         .onPositive { dialog, which ->
                             doAsync {
-                                mHeroes!!.removeAt(childPosition)
                                 DataOp.rmFromNation(ctxt.database, mHero.id, {
+                                    mHeroes!!.removeAt(childPosition)
                                     Helper.toaster(ctxt, mHero.namepls() + " went home.")
+                                    ctxt.runOnUiThread { this@CheckStatAdapter.notifyDataSetChanged() }
                                 })
-                                ctxt.runOnUiThread { this@CheckStatAdapter.notifyDataSetChanged() }
                             }
                         }
                         .show()

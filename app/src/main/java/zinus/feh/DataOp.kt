@@ -175,9 +175,14 @@ object DataOp {
 
     fun rmFromNation(database: DBHelper, id: Long, update: () -> Any) {
         database.use {
-            delete(MHeroBean.TABLE_NAME,
+            val result = delete(MHeroBean.TABLE_NAME,
                     "${MHeroBean.COL_ID} = {mid}",
-                    "mid" to id)
+                    "mid" to id) > 0
+            if (result) {
+                update()
+            } else{
+                Log.e("abc", "weird")
+            }
         }
     }
 }

@@ -73,8 +73,8 @@ class NationAdapter(contxt: Context) : BaseAdapter() {
                             heroes!!.removeAt(position)
                             DataOp.rmFromNation(ctxt.database, hero.id, {
                                 Helper.toaster(ctxt, hero.namepls() + " went home.")
+                                ctxt.runOnUiThread { this@NationAdapter.notifyDataSetChanged() }
                             })
-                            ctxt.runOnUiThread { this@NationAdapter.notifyDataSetChanged() }
                         }
                     }
                     .show()

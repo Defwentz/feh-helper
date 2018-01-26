@@ -16,7 +16,7 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "HeroesDB", null, 1)
 
         @Synchronized
         fun getInstance(ctx: Context): DBHelper {
-            Log.e("abc", "getinstance")
+            //Log.e("abc", "getinstance")
             if (instance == null) {
                 instance = DBHelper(ctx.getApplicationContext())
             }

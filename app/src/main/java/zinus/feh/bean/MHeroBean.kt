@@ -80,9 +80,9 @@ class MHeroBean(id:Long, name:String, nick:String, rar:Int, mrg:Int, date:Int, b
         return "$name$nickStr, $rarity*$mrgStr, $bbStr"
     }
 
-    fun saveIntoDB(database: DBHelper) {
+    fun saveIntoDB(database: DBHelper, ret: (MHeroBean) -> Any) {
         database.use {
-            insert(TABLE_NAME,
+            this@MHeroBean.id = insert(TABLE_NAME,
                     COL_NAME to name,
                     COL_NICK to nickname,
                     COL_RAR to rarity,
@@ -90,6 +90,7 @@ class MHeroBean(id:Long, name:String, nick:String, rar:Int, mrg:Int, date:Int, b
                     COL_DATE to inputDate,
                     COL_BOON to boon,
                     COL_BANE to bane)
+            ret(this@MHeroBean)
         }
     }
 }
