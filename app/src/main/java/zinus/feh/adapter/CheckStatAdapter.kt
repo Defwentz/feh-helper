@@ -7,8 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.afollestad.materialdialogs.MaterialDialog
-import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.layoutInflater
 import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.sdk25.coroutines.onClick
@@ -332,6 +330,7 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
 
     override fun getGroupCount(): Int {
         return header.size
+
     }
 
     override fun getGroupView(groupPosition: Int,
@@ -436,20 +435,13 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
                 saveBtn.onClick {
 
                     if(nickEt!!.text.toString().isNotBlank()) {
-                        selHero!!.nickname = nickEt!!.text.toString()
+                        selHero?.nickname = nickEt!!.text.toString()
                     } else {
 
                     }
-                    saveBtn.isEnabled = false
-                    selHero!!.saveIntoDB(ctxt.database, {mhero ->
-                        Helper.toaster(ctxt, "saved")
-                        Log.e("abc", mhero.toString())
-                        mHeroes!!.add(mhero)
-                        clearSelect()
-                        saveBtn.isEnabled = true
-                        this@CheckStatAdapter.notifyDataSetChanged()
-
-                    })
+                    if(selHero != null) {
+                        saveToNation(selHero!!, saveBtn)
+                    }
                 }
 
             }
@@ -457,7 +449,6 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
 
             }
         }
-
         return retView
     }
 
@@ -501,7 +492,6 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
         }
     }
 
-
     override fun getChildView(groupPosition: Int,
                               childPosition: Int,
                               isLastChild: Boolean,
@@ -514,8 +504,6 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
             }
             3 -> {
                 stat = ArrayList<String>()
-                val mHero = getChild(groupPosition, childPosition) as MHeroBean
-                stat.add(mHero.toDes())
             }
             else -> return convertView!!
         }
@@ -542,57 +530,76 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
             }
         }
         if(groupPosition == 3) {
-            val destv = retView!!.findViewById<TextView>(R.id.tv_des)
-            val delBtn = retView?.findViewById<Button>(R.id.btn_delete)
             val mHero = getChild(groupPosition, childPosition) as MHeroBean
 
-            retView!!.setOnClickListener {
-                ctxt.runOnUiThread { Helper.toaster(ctxt, "what?" + mHero.id + ";" + childPosition) }
+            val infoLayout = retView!!.findViewById<LinearLayout>(R.id.ly_info)
+
+            infoLayout.setOnClickListener {
+                Log.e("abc", "init edit")
+
+                Helper.initEditHero(ctxt, mHero, rarAdapter, {hero, dialog ->
+                    DataOp.updateToNation(ctxt.database, hero,
+                            {
+                                Helper.toaster(ctxt, hero.namepls() + "'s record updated.")
+                                ctxt.runOnUiThread { this@CheckStatAdapter.notifyDataSetChanged() }
+                            })})
             }
-            destv?.setText(stat[0])
+
+            Helper.setupHeroInfo(mHero, retView!!)
+
+            val delBtn = retView?.findViewById<Button>(R.id.btn_delete)
             delBtn?.onClick {
-                MaterialDialog.Builder(ctxt)
-                        .title(R.string.title_send_home)
-                        .content(R.string.summ_send_home)
-                        .positiveText(R.string.yes)
-                        .negativeText(R.string.no)
-                        .onPositive { dialog, which ->
-                            doAsync {
-                                DataOp.rmFromNation(ctxt.database, mHero.id, {
-                                    mHeroes!!.removeAt(childPosition)
-                                    Helper.toaster(ctxt, mHero.namepls() + " went home.")
-                                    ctxt.runOnUiThread { this@CheckStatAdapter.notifyDataSetChanged() }
-                                })
-                            }
-                        }
-                        .show()
+                Helper.initDelHero(ctxt, { dialog, which ->
+                    DataOp.rmFromNation(ctxt.database, mHero, {
+                        mHeroes!!.removeAt(childPosition)
+                        Helper.toaster(ctxt, mHero.namepls() + " went home.")
+                        ctxt.runOnUiThread { this@CheckStatAdapter.notifyDataSetChanged() }
+                    })
+                })
+            }
+            return retView!!
+
+        } else {
+            val rartv = retView!!.findViewById<TextView>(R.id.txt_rar)
+            val hptv = retView!!.findViewById<TextView>(R.id.txt_hp)
+            val atktv = retView!!.findViewById<TextView>(R.id.txt_atk)
+            val spdtv = retView!!.findViewById<TextView>(R.id.txt_spd)
+            val deftv = retView!!.findViewById<TextView>(R.id.txt_def)
+            val restv = retView!!.findViewById<TextView>(R.id.txt_res)
+
+            if(groupPosition == 2 && childPosition == 1) {
+                rartv!!.setText(Html.fromHtml(stat[0]))
+                hptv!!.setText(Html.fromHtml(stat[1]))
+                atktv!!.setText(Html.fromHtml(stat[2]))
+                spdtv!!.setText(Html.fromHtml(stat[3]))
+                deftv!!.setText(Html.fromHtml(stat[4]))
+                restv!!.setText(Html.fromHtml(stat[5]))
+            } else {
+                rartv!!.setText(stat[0])
+                hptv!!.setText(stat[1])
+                atktv!!.setText(stat[2])
+                spdtv!!.setText(stat[3])
+                deftv!!.setText(stat[4])
+                restv!!.setText(stat[5])
             }
             return retView!!
         }
-
-        val rartv = retView!!.findViewById<TextView>(R.id.txt_rar)
-        val hptv = retView!!.findViewById<TextView>(R.id.txt_hp)
-        val atktv = retView!!.findViewById<TextView>(R.id.txt_atk)
-        val spdtv = retView!!.findViewById<TextView>(R.id.txt_spd)
-        val deftv = retView!!.findViewById<TextView>(R.id.txt_def)
-        val restv = retView!!.findViewById<TextView>(R.id.txt_res)
-        if(groupPosition == 2 && childPosition == 1) {
-            rartv!!.setText(Html.fromHtml(stat[0]))
-            hptv!!.setText(Html.fromHtml(stat[1]))
-            atktv!!.setText(Html.fromHtml(stat[2]))
-            spdtv!!.setText(Html.fromHtml(stat[3]))
-            deftv!!.setText(Html.fromHtml(stat[4]))
-            restv!!.setText(Html.fromHtml(stat[5]))
-        } else {
-            rartv!!.setText(stat[0])
-            hptv!!.setText(stat[1])
-            atktv!!.setText(stat[2])
-            spdtv!!.setText(stat[3])
-            deftv!!.setText(stat[4])
-            restv!!.setText(stat[5])
-        }
-        return retView!!
     }
+
+    fun saveToNation(hero: MHeroBean, saveBtn: ImageView) {
+        saveBtn.isEnabled = false
+        DataOp.saveToNation(ctxt.database, selHero!!, {hero ->
+            ctxt.runOnUiThread {
+                Helper.toaster(ctxt, "saved")
+                Log.e("abc", hero.toString())
+                mHeroes!!.add(hero)
+                clearSelect()
+                saveBtn.isEnabled = true
+                this@CheckStatAdapter.notifyDataSetChanged()
+            }
+        })
+    }
+
 
     override fun hasStableIds(): Boolean {
         return true

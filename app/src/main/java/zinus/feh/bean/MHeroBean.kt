@@ -1,7 +1,5 @@
 package zinus.feh.bean
 
-import org.jetbrains.anko.db.insert
-import zinus.feh.DBHelper
 import zinus.feh.GameLogic
 
 /**
@@ -13,10 +11,11 @@ class MHeroBean(id:Long, name:String, nick:String, rar:Int, mrg:Int, date:Int, b
         val TABLE_NAME = "MyHeroes"
         val COL_ID = "id"
         val COL_NAME = "name"
+        val COL_DATE = "inputdate"
+
         val COL_NICK = "nickname"
         val COL_RAR = "rarity"
         val COL_MRG = "merge"
-        val COL_DATE = "inputdate"
 
         val COL_BOON = "boon"
         val COL_BANE = "bane"
@@ -56,41 +55,38 @@ class MHeroBean(id:Long, name:String, nick:String, rar:Int, mrg:Int, date:Int, b
         }
     }
 
-    fun toDes(): String {
+    fun toNameTV(): String {
         var nickStr: String
         if(nickname.isNotBlank()) {
-            nickStr = " aka $nickname"
+            nickStr = " aka. $nickname"
         } else {
             nickStr = ""
         }
+        return "$name$nickStr"
+    }
 
+    fun toRarMrgTV(): String {
         var mrgStr: String
         if(merge == 0) {
             mrgStr = ""
         } else {
             mrgStr = "(+$merge)"
         }
+        return "$rarity*$mrgStr"
+    }
 
+    fun toBBTV(): String {
         var bbStr: String
         if(boon == bane) {
             bbStr = "netural"
         } else {
             bbStr = "+${GameLogic.STAT[boon]}/-${GameLogic.STAT[bane]}"
         }
-        return "$name$nickStr, $rarity*$mrgStr, $bbStr"
+
+        return bbStr
     }
 
-    fun saveIntoDB(database: DBHelper, ret: (MHeroBean) -> Any) {
-        database.use {
-            this@MHeroBean.id = insert(TABLE_NAME,
-                    COL_NAME to name,
-                    COL_NICK to nickname,
-                    COL_RAR to rarity,
-                    COL_MRG to merge,
-                    COL_DATE to inputDate,
-                    COL_BOON to boon,
-                    COL_BANE to bane)
-            ret(this@MHeroBean)
-        }
+    fun toDes(): String {
+        return "${toNameTV()}, ${toRarMrgTV()}, ${toBBTV()}"
     }
 }

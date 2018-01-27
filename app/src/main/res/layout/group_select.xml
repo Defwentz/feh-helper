@@ -2,44 +2,45 @@
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="8dp">
 
     <TextView
         android:id="@+id/textView"
-        android:layout_margin="10dp"
-        android:layout_weight="1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/ListHeader"
+        android:layout_margin="10dp"
+        android:layout_weight="1"
         android:text="alfonse"
-        />
+        android:textAppearance="@style/ListHeader"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/head"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView">
 
         <EditText
             android:id="@+id/et_nick"
-            android:layout_weight="1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
             android:layout_margin="10dp"
+            android:layout_weight="1"
             android:hint="nickname"
             android:inputType="textPersonName"
-            android:textSize="20dp" />
+            android:textSize="18dp" />
 
         <ImageView
             android:id="@+id/btn_save"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_margin="10dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
             app:srcCompat="@android:drawable/ic_input_add" />
     </LinearLayout>
 
@@ -54,14 +55,14 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
             android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/txt_rar_mrg"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_margin="10dp"
+                android:layout_height="wrap_content"
                 android:text="@string/prompt_rar_mrg"
                 android:textAppearance="@style/ListChild"
                 app:layout_constraintStart_toEndOf="@+id/textView" />
@@ -70,7 +71,7 @@
                 android:id="@+id/rar_spinner"
                 style="@style/SpinnerSelect"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:prompt="@string/prompt_rarity"
                 app:layout_constraintStart_toEndOf="@+id/txt_rar" />
@@ -79,7 +80,7 @@
                 android:id="@+id/mrg_spinner"
                 style="@style/SpinnerSelect"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:entries="@array/array_merge"
                 android:prompt="@string/prompt_merge"
@@ -88,14 +89,14 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
             android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/txt_boon_bane"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_margin="10dp"
+                android:layout_width="75dp"
+                android:layout_height="wrap_content"
                 android:text="@string/prompt_bb"
                 android:textAppearance="@style/ListChild"
                 app:layout_constraintStart_toEndOf="@+id/mrg_spinner" />
@@ -104,7 +105,7 @@
                 android:id="@+id/boon_spinner"
                 style="@style/SpinnerSelect"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:entries="@array/array_stat"
@@ -115,7 +116,7 @@
                 android:id="@+id/bane_spinner"
                 style="@style/SpinnerSelect"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:entries="@array/array_stat"
                 android:prompt="@string/prompt_bane"

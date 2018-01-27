@@ -3,7 +3,6 @@
     <string name="search_hint">alfonse</string>
     <string name="prompt_rarity">rarity</string>
     <string name="prompt_merge">merge</string>
-    <string name="prompt_rar_mrg">rarity/merge</string>
     <string-array name="array_merge">
         <item>0</item>
         <item>1</item>
@@ -26,7 +25,10 @@
         <item>res</item>
     </string-array>
     <string name="prompt_bane">bane</string>
+
+    <string name="prompt_rar_mrg">rarity/merge</string>
     <string name="prompt_bb">boon/bane</string>
+
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
@@ -89,6 +91,7 @@
 
     <string name="yes">yes</string>
     <string name="no">no</string>
+    <string name="confirm">confirm</string>
 
     <string name="title_progress">progress</string>
     <string name="content_progress">please wait</string>
@@ -104,6 +107,8 @@
 
     <string name="title_send_home">send home</string>
     <string name="summ_send_home">send this hero home</string>
+
+    <string name="title_edit_hero">edit info</string>
 
     <string-array name="multi_select_list_preference_default_value" />
 

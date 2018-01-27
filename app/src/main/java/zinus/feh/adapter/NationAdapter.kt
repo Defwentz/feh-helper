@@ -4,11 +4,10 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.BaseAdapter
 import android.widget.Button
-import android.widget.TextView
-import com.afollestad.materialdialogs.MaterialDialog
-import org.jetbrains.anko.doAsync
+import android.widget.LinearLayout
 import org.jetbrains.anko.layoutInflater
 import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.sdk25.coroutines.onClick
@@ -17,6 +16,7 @@ import zinus.feh.Helper
 import zinus.feh.R
 import zinus.feh.bean.MHeroBean
 import zinus.feh.database
+import java.util.*
 
 /**
  * Created by macbookair on 11/12/17.
@@ -58,27 +58,57 @@ class NationAdapter(contxt: Context) : BaseAdapter() {
             retView = convertView
         }
 
-        val tv = retView?.findViewById<TextView>(R.id.tv_des)
-        val delBtn = retView?.findViewById<Button>(R.id.btn_delete)
+        val rarAdapter = getRarAdapter(hero.name)
+        if(rarAdapter == null) {
 
-        tv?.setText(hero.toDes())
-        delBtn?.onClick {
-            MaterialDialog.Builder(ctxt)
-                    .title(R.string.title_wipe_nation)
-                    .content(R.string.summ_wipe_nation)
-                    .positiveText(R.string.yes)
-                    .negativeText(R.string.no)
-                    .onPositive { dialog, which ->
-                        doAsync {
-                            heroes!!.removeAt(position)
-                            DataOp.rmFromNation(ctxt.database, hero.id, {
-                                Helper.toaster(ctxt, hero.namepls() + " went home.")
+        } else {
+            val infoLayout = retView!!.findViewById<LinearLayout>(R.id.ly_info)
+
+            infoLayout.onClick {
+                Helper.initEditHero(ctxt, hero, rarAdapter, { mhero, dialog ->
+                    DataOp.updateToNation(ctxt.database, hero,
+                            {
+                                Helper.toaster(ctxt, hero.namepls() + "'s record updated.")
                                 ctxt.runOnUiThread { this@NationAdapter.notifyDataSetChanged() }
                             })
-                        }
-                    }
-                    .show()
+                })
+            }
+        }
+
+        Helper.setupHeroInfo(hero, retView!!)
+
+        val delBtn = retView!!.findViewById<Button>(R.id.btn_delete)
+        delBtn!!.onClick {
+            Helper.initDelHero(ctxt, { dialog, which ->
+                DataOp.rmFromNation(ctxt.database, hero, {
+                    heroes!!.removeAt(position)
+                    Helper.toaster(ctxt, hero.namepls() + " went home.")
+                    ctxt.runOnUiThread { this@NationAdapter.notifyDataSetChanged() }
+                })
+            })
         }
         return retView!!
+    }
+
+    fun getRarAdapter(name: String): ArrayAdapter<String>?  {
+        val hero = DataOp.getHeroData(name)
+
+        if(hero == null) {
+            return null
+        } else {
+            val raritys: ArrayList<String> = arrayListOf("5")
+            var r = 5
+            raritys.clear()
+            while (r >= hero.minrarity) {
+                raritys.add(r.toString())
+                r--
+            }
+
+            val rarAdapter = ArrayAdapter<String>(ctxt,
+                    android.R.layout.simple_spinner_item,
+                    raritys)
+            rarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            return rarAdapter
+        }
     }
 }

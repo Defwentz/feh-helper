@@ -17,7 +17,21 @@ import zinus.feh.bean.MHeroBean
  */
 
 object DataOp {
+    // storing all heroes data, base atk, growth and such
     var heroes: List<HeroBean>? = null
+
+    fun getHeroData(name: String): HeroBean? {
+        if(heroes == null || heroes!!.isEmpty()) {
+            return null
+        } else {
+            for(hero in heroes!!) {
+                if (name == hero.name) {
+                    return hero
+                }
+            }
+            return null
+        }
+    }
 
     fun nuUnits(): Boolean {
         return false
@@ -30,7 +44,7 @@ object DataOp {
     fun clearNation(database: DBHelper) {
         database.upgradeTb(database.writableDatabase, MHeroBean.TABLE_NAME)
     }
-
+    
     fun fetchHeroNames(heroes: List<HeroBean>): List<String> {
         val names = List<String>(heroes.size,{i -> heroes[i].name})
 //        Log.e("abc", names.toString())
@@ -173,11 +187,45 @@ object DataOp {
         }
     }
 
-    fun rmFromNation(database: DBHelper, id: Long, update: () -> Any) {
+    fun updateToNation(database: DBHelper, hero: MHeroBean, update: () -> Any) {
+        database.use {
+            val result = update(MHeroBean.TABLE_NAME,
+                    MHeroBean.COL_NICK to hero.nickname,
+                    MHeroBean.COL_RAR to hero.rarity,
+                    MHeroBean.COL_MRG to hero.merge,
+                    MHeroBean.COL_BOON to hero.boon,
+                    MHeroBean.COL_BANE to hero.bane)
+                    .whereArgs("(${MHeroBean.COL_ID} = {heroId})",
+            "heroId" to hero.id).exec()
+            update()
+        }
+    }
+
+    fun saveToNation(database: DBHelper, hero: MHeroBean, update: (MHeroBean) -> Any) {
+        database.use {
+            val result = insert(MHeroBean.TABLE_NAME,
+                    MHeroBean.COL_NAME to hero.name,
+                    MHeroBean.COL_NICK to hero.nickname,
+                    MHeroBean.COL_RAR to hero.rarity,
+                    MHeroBean.COL_MRG to hero.merge,
+                    MHeroBean.COL_DATE to hero.inputDate,
+                    MHeroBean.COL_BOON to hero.boon,
+                    MHeroBean.COL_BANE to hero.bane)
+            if (result > 0) {
+                hero.id = result
+                update(hero)
+            } else {
+                Log.e("abc", "weird")
+            }
+
+        }
+    }
+
+    fun rmFromNation(database: DBHelper, hero: MHeroBean, update: () -> Any) {
         database.use {
             val result = delete(MHeroBean.TABLE_NAME,
                     "${MHeroBean.COL_ID} = {mid}",
-                    "mid" to id) > 0
+                    "mid" to hero.id) > 0
             if (result) {
                 update()
             } else{
