@@ -87,6 +87,7 @@ object Helper {
         val boonSpnr = view.findViewById<Spinner>(R.id.boon_spinner)
         val baneSpnr = view.findViewById<Spinner>(R.id.bane_spinner)
         val saveBtn = view.findViewById<ImageView>(R.id.btn_save)
+        val nameTv  = view.findViewById<TextView>(R.id.textView)
 
         saveBtn.visibility = View.INVISIBLE
         nkEt.setText(hero.nickname)
@@ -96,6 +97,8 @@ object Helper {
         mrgSpnr.setSelection(hero.merge)
         boonSpnr.setSelection(hero.boon)
         baneSpnr.setSelection(hero.bane)
+
+        nameTv.setText(hero.namepls())
 
         dialog.show()
     }
