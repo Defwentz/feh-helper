@@ -20,5 +20,6 @@ minor stuff:
 
 Some screenshots
 -
-![ScreenShot](doc/Screenshot_20180128-215454.png) ![ScreenShot](doc/Screenshot_20180128-215529.png)
-![ScreenShot](doc/Screenshot_20180128-215548.png) ![ScreenShot](doc/Screenshot_20180128-215612.png)
+![ScreenShot](doc/Screenshot_20180128-215454.png){:height="800px" width="450px"} ![ScreenShot](doc/Screenshot_20180128-215529.png){:height="800px" width="450px"}
+
+![ScreenShot](doc/Screenshot_20180128-215548.png){:height="800px" width="450px"} ![ScreenShot](doc/Screenshot_20180128-215612.png){:height="800px" width="450px"}
