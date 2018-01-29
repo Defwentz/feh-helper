@@ -17,3 +17,8 @@ minor stuff:
 - [x] beautify UI (I tried, maybe some other time)
 - [ ] better UI for nickname section
 - [ ] some minor but maybe interesting or useful info: map rotation, bst type...
+
+Some screenshots
+-
+![ScreenShot](doc/Screenshot_20180128-215454.png) ![ScreenShot](doc/Screenshot_20180128-215529.png)
+![ScreenShot](doc/Screenshot_20180128-215548.png) ![ScreenShot](doc/Screenshot_20180128-215612.png)
