@@ -1,5 +1,5 @@
 # feh-helper
-fire emblem heroes Android helper app in development, for fun i guess, and no need for manual update.
+fire emblem heroes Android helper app, for checking IV. The niche is you don't have to wait for other people to update their database or the app when new units comes out, except for gamepedia people, but they're always quick. 
 
 features i want:
 
