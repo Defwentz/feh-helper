@@ -28,6 +28,8 @@ object GameLogic {
         }
         return 0
     }
+
+    // convert stat to a map with header and stat
     fun statMap(stat: List<Int>): MutableMap<String, Int> {
         return mutableMapOf<String, Int>(
                 STAT[0] to stat[0],

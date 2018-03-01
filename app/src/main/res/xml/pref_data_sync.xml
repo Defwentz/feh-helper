@@ -20,6 +20,9 @@
     <Preference android:title="@string/title_update_local"
         android:key="@string/key_update_local"
         android:summary="@string/summ_update_local"/>
+    <Preference android:title="@string/title_update_new_local"
+        android:key="@string/key_update_new_local"
+        android:summary="@string/summ_update_new_local"/>
 
     <Preference android:title="@string/title_wipe_nation"
         android:key="@string/key_wipe_nation"

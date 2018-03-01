@@ -107,6 +107,73 @@ object DataOp {
         }
     }
 
+    fun nameCheck(names: List<String>, title: String): Boolean {
+        for(name: String in names) {
+            if (name.equals(title)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    fun fetchNewFromGamepedia(ctxt: Context, currentHeroes: List<String>, updateLocal: (List<HeroBean>) -> Any) {
+
+        var heroes: MutableList<HeroBean> = mutableListOf<HeroBean>()
+
+        val retJsonStr = Helper.fetch_url("http://feheroes.gamepedia.com/api.php?action=query&format=json&prop=&list=categorymembers&meta=&titles=&cmtitle=+Category%3A+Heroes&cmlimit=max")
+        val retJson = JSONObject(retJsonStr)
+        val arrayJson = retJson.getJSONObject("query").getJSONArray("categorymembers")
+
+        for (i in (arrayJson.length() - 1) downTo 0) {
+            val json: JSONObject = arrayJson[i] as JSONObject
+            if(json.getInt("ns") != 0) {
+                arrayJson.remove(i)
+            } else if (nameCheck(currentHeroes, json.getString("title")) ) {
+                arrayJson.remove(i)
+            }
+        }
+        ctxt.runOnUiThread {
+            val showMinMax = true
+            MaterialDialog.Builder(ctxt)
+                    .title(R.string.title_progress)
+                    .content(R.string.content_progress)
+                    .progress(false, arrayJson.length(), showMinMax)
+                    .cancelable(false)
+                    .showListener {
+                        dialogInterface ->
+                        val dialog = dialogInterface as MaterialDialog
+                        doAsync {
+                            for (i in 0..(arrayJson.length() - 1)) {
+                                val json: JSONObject = arrayJson[i] as JSONObject
+                                var hero = HeroBean()
+                                hero.initFromJSON(i.toLong(), json)
+                                // Log.d("abc", hero.toString() )
+                                heroes.add(hero)
+                                dialog.incrementProgress(1)
+                            }
+
+                            if(heroes.size != 0) {
+                                if(DataOp.heroes != null) {
+                                    heroes.addAll(DataOp.heroes!!)
+                                }
+                                DataOp.heroes = heroes
+                                runOnUiThread {
+                                    dialog.setContent(R.string.done)
+                                    dialog.dismiss()
+                                }
+                                updateLocal(heroes)
+                            } else {
+                                runOnUiThread {
+                                    dialog.setContent("something is wrong, fetched nothing")
+                                    dialog.dismiss()
+                                }
+                            }
+                        }
+                    }
+                    .show()
+        }
+    }
+
     fun fetchFromLocal(database: DBHelper, updateLocal: (List<HeroBean>) -> Any) {
         database.use {
             select(HeroBean.TABLE_NAME).exec {

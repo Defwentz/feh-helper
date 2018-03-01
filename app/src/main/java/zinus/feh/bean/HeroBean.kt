@@ -6,8 +6,13 @@ package zinus.feh.bean
 import android.util.Log
 import org.json.JSONObject
 import org.jsoup.Jsoup
+import zinus.feh.GameLogic
+import zinus.feh.GameLogic.GVs
+import zinus.feh.GameLogic.MrgOrder
+import zinus.feh.GameLogic.statColToInt
 import zinus.feh.Helper
 import java.io.Serializable
+import java.util.*
 
 val header = "https://feheroes.gamepedia.com"
 
@@ -136,6 +141,140 @@ class HeroBean : Serializable {
         } else { // bruno
             minrarity = 5
         }
+    }
+
+    // compute base stats for all rarity
+    fun getBaseStats(): ArrayList<ArrayList<String>> {
+
+        var ret = ArrayList<ArrayList<String>>()
+
+        // temp holder for stat
+        val stat = GameLogic.statMap(listOf(
+                basehp,
+                baseatk,
+                basespd,
+                basedef,
+                baseres))
+
+        // base stat in 5 rarity
+        ret.add(arrayListOf("5",
+                stat[GameLogic.STAT[0]].toString(),
+                stat[GameLogic.STAT[1]].toString(),
+                stat[GameLogic.STAT[2]].toString(),
+                stat[GameLogic.STAT[3]].toString(),
+                stat[GameLogic.STAT[4]].toString()))
+
+        var rar = 4
+        while (rar >= minrarity) {
+
+            val order = GameLogic.RarOrder(stat)
+            when(rar) {
+                4 -> {
+                    stat.set(GameLogic.STAT[0], stat[GameLogic.STAT[0]]!! - 1)
+                    stat.set(order[0], stat[order[0]]!! - 1)
+                    stat.set(order[1], stat[order[1]]!! - 1)
+                }
+                3 -> {
+                    stat.set(order[2], stat[order[2]]!! - 1)
+                    stat.set(order[3], stat[order[3]]!! - 1)
+                }
+                2 -> {
+                    stat.set(GameLogic.STAT[0], stat[GameLogic.STAT[0]]!! - 1)
+                    stat.set(order[0], stat[order[0]]!! - 1)
+                    stat.set(order[1], stat[order[1]]!! - 1)
+                }
+                1 -> {
+                    stat.set(order[2], stat[order[2]]!! - 1)
+                    stat.set(order[3], stat[order[3]]!! - 1)
+                }
+                else -> {
+
+                }
+            }
+
+            ret.add(arrayListOf(rar.toString(),
+                    stat[GameLogic.STAT[0]].toString(),
+                    stat[GameLogic.STAT[1]].toString(),
+                    stat[GameLogic.STAT[2]].toString(),
+                    stat[GameLogic.STAT[3]].toString(),
+                    stat[GameLogic.STAT[4]].toString()))
+            rar--
+        }
+
+        return ret
+    }
+
+    fun getHeroStat(boon: String, bane: String, hero: MHeroBean, baseStats: ArrayList<ArrayList<String>>): MutableMap<String, Int> {
+
+        val gvMod = GameLogic.getGVMod(boon, bane)
+
+        val stdBaseStat = baseStats[1]
+        val stdBaseStatMap = GameLogic.statMap(listOf(
+                stdBaseStat[1].toInt(),
+                stdBaseStat[2].toInt(),
+                stdBaseStat[3].toInt(),
+                stdBaseStat[4].toInt(),
+                stdBaseStat[5].toInt()))
+        for (k in stdBaseStatMap.keys) {
+            stdBaseStatMap[k] = stdBaseStatMap[k]!! + gvMod[statColToInt(k)]
+        }
+        // apparently this order is based on 5* stat with iv modification,
+        // not the actual rarity of the hero
+        val order = MrgOrder(stdBaseStatMap)
+
+
+        val baseStat = baseStats[6-hero.rarity]
+        val ret = GameLogic.statMap(listOf(
+                baseStat[1].toInt(),
+                baseStat[2].toInt(),
+                baseStat[3].toInt(),
+                baseStat[4].toInt(),
+                baseStat[5].toInt()))
+        // new base stats with boon and bane
+        for (k in ret.keys) {
+            ret[k] = ret[k]!! + gvMod[statColToInt(k)]
+        }
+
+        Log.e("abc", gvMod.toString())
+        val gvs = listOf<Int>(GVs[hero.rarity-1][hpgrowth + gvMod[0]],
+                GVs[hero.rarity-1][atkgrowth + gvMod[1]],
+                GVs[hero.rarity-1][spdgrowth + gvMod[2]],
+                GVs[hero.rarity-1][defgrowth + gvMod[3]],
+                GVs[hero.rarity-1][resgrowth + gvMod[4]])
+
+        // new max level stats
+        for (k in ret.keys) {
+            ret[k] = ret[k]!! + gvs[statColToInt(k)]
+        }
+
+        var m = 0
+        while(m < hero.merge) {
+            when(m) {
+                0,5 -> {
+                    ret.set(order[0], ret[order[0]]!!+1)
+                    ret.set(order[1], ret[order[1]]!!+1)
+                }
+                1,6 -> {
+                    ret.set(order[2], ret[order[2]]!!+1)
+                    ret.set(order[3], ret[order[3]]!!+1)
+                }
+                2,7 -> {
+                    ret.set(order[4], ret[order[4]]!!+1)
+                    ret.set(order[0], ret[order[0]]!!+1)
+                }
+                3,8 -> {
+                    ret.set(order[1], ret[order[1]]!!+1)
+                    ret.set(order[2], ret[order[2]]!!+1)
+                }
+                4,9 -> {
+                    ret.set(order[3], ret[order[3]]!!+1)
+                    ret.set(order[4], ret[order[4]]!!+1)
+                }
+            }
+            m++
+        }
+
+        return ret
     }
 
     fun initFromDB(columns: Array<Any?>) {

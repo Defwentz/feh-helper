@@ -101,6 +101,10 @@
     <string name="title_update_local">update database</string>
     <string name="summ_update_local">sync with gamepedia</string>
 
+    <string name="key_update_new_local">sync_new_db</string>
+    <string name="title_update_new_local">update only new heroes</string>
+    <string name="summ_update_new_local">sync with gamepedia</string>
+
     <string name="key_wipe_nation">wipe_nation</string>
     <string name="title_wipe_nation">wipe data</string>
     <string name="summ_wipe_nation">clear my heroes data</string>

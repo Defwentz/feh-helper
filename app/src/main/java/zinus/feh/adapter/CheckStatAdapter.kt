@@ -13,12 +13,8 @@ import org.jetbrains.anko.sdk25.coroutines.onClick
 import org.jetbrains.anko.sdk25.coroutines.onFocusChange
 import zinus.feh.*
 import zinus.feh.GameLogic.GVs
-import zinus.feh.GameLogic.MrgOrder
-import zinus.feh.GameLogic.RarOrder
 import zinus.feh.GameLogic.STAT
-import zinus.feh.GameLogic.getGVMod
 import zinus.feh.GameLogic.statColToInt
-import zinus.feh.GameLogic.statMap
 import zinus.feh.bean.HeroBean
 import zinus.feh.bean.MHeroBean
 import java.util.*
@@ -63,57 +59,7 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
 
     fun computeBaseStats() {
         baseStats.add(cheader)
-
-        val stats = statMap(listOf(hero!!.basehp,
-                hero!!.baseatk,
-                hero!!.basespd,
-                hero!!.basedef,
-                hero!!.baseres))
-
-        baseStats.add(arrayListOf("5",
-                stats[STAT[0]].toString(),
-                stats[STAT[1]].toString(),
-                stats[STAT[2]].toString(),
-                stats[STAT[3]].toString(),
-                stats[STAT[4]].toString()))
-
-        var i = 4
-        while (i >= hero!!.minrarity) {
-
-            val order = RarOrder(stats)
-            Log.e("abc", hero.toString())
-            when(i) {
-                4 -> {
-                    stats.set(STAT[0], stats[STAT[0]]!! - 1)
-                    stats.set(order[0], stats[order[0]]!! - 1)
-                    stats.set(order[1], stats[order[1]]!! - 1)
-                }
-                3 -> {
-                    stats.set(order[2], stats[order[2]]!! - 1)
-                    stats.set(order[3], stats[order[3]]!! - 1)
-                }
-                2 -> {
-                    stats.set(STAT[0], stats[STAT[0]]!! - 1)
-                    stats.set(order[0], stats[order[0]]!! - 1)
-                    stats.set(order[1], stats[order[1]]!! - 1)
-                }
-                1 -> {
-                    stats.set(order[2], stats[order[2]]!! - 1)
-                    stats.set(order[3], stats[order[3]]!! - 1)
-                }
-                else -> {
-
-                }
-            }
-
-            baseStats.add(arrayListOf(i.toString(),
-                    stats[STAT[0]].toString(),
-                    stats[STAT[1]].toString(),
-                    stats[STAT[2]].toString(),
-                    stats[STAT[3]].toString(),
-                    stats[STAT[4]].toString()))
-            i--
-        }
+        baseStats.addAll(hero!!.getBaseStats())
     }
 
     fun computeMaxStats() {
@@ -196,7 +142,6 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
         if(maxStats.size < 2) {}
         else {
             select.clear()
-
             selHero = MHeroBean(0,hero!!.name, nick,
                     rar,
                     mrg,
@@ -204,74 +149,22 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
                     statColToInt(boon),
                     statColToInt(bane))
 
+            val stat = hero!!.getHeroStat(
+                    boon, bane,
+                    selHero!!,
+                    baseStats)
 
-            val _baseStat = baseStats[6-rar].clone() as ArrayList<String>
-
-            val baseStat = statMap(listOf(_baseStat[1].toInt(),
-                    _baseStat[2].toInt(),
-                    _baseStat[3].toInt(),
-                    _baseStat[4].toInt(),
-                    _baseStat[5].toInt()))
-            val gvMod = getGVMod(boon, bane)
-
-            // new base stats with boon and bane
-            for (k in baseStat.keys) {
-                baseStat[k] = baseStat[k]!! + gvMod[statColToInt(k)]
-            }
-            val order = MrgOrder(baseStat)
-
-            Log.e("abc", gvMod.toString())
-            val gvs = listOf<Int>(GVs[rar-1][hero!!.hpgrowth + gvMod[0]],
-                    GVs[rar-1][hero!!.atkgrowth + gvMod[1]],
-                    GVs[rar-1][hero!!.spdgrowth + gvMod[2]],
-                    GVs[rar-1][hero!!.defgrowth + gvMod[3]],
-                    GVs[rar-1][hero!!.resgrowth + gvMod[4]])
-
-            // new max level stats
-            for (k in baseStat.keys) {
-                baseStat[k] = baseStat[k]!! + gvs[statColToInt(k)]
-            }
-
-            var m = 0
-            while(m < mrg) {
-                when(m) {
-                    0,5 -> {
-                        baseStat.set(order[0], baseStat[order[0]]!!+1)
-                        baseStat.set(order[1], baseStat[order[1]]!!+1)
-                    }
-                    1,6 -> {
-                        baseStat.set(order[2], baseStat[order[2]]!!+1)
-                        baseStat.set(order[3], baseStat[order[3]]!!+1)
-                    }
-                    2,7 -> {
-                        baseStat.set(order[4], baseStat[order[4]]!!+1)
-                        baseStat.set(order[0], baseStat[order[0]]!!+1)
-                    }
-                    3,8 -> {
-                        baseStat.set(order[1], baseStat[order[1]]!!+1)
-                        baseStat.set(order[2], baseStat[order[2]]!!+1)
-                    }
-                    4,9 -> {
-                        baseStat.set(order[3], baseStat[order[3]]!!+1)
-                        baseStat.set(order[4], baseStat[order[4]]!!+1)
-                    }
-                }
-                m++
-            }
-			
 			var rarStr = rar.toString()
-			if (mrg == 0) {
-			
-			} else {
+			if (mrg != 0) {
                 rarStr += "(+" + mrg.toString() + ")"
 			}
 
             select.addAll(listOf(rarStr,
-                    baseStat[STAT[0]].toString(),
-                    baseStat[STAT[1]].toString(),
-                    baseStat[STAT[2]].toString(),
-                    baseStat[STAT[3]].toString(),
-                    baseStat[STAT[4]].toString()))
+                    stat[STAT[0]].toString(),
+                    stat[STAT[1]].toString(),
+                    stat[STAT[2]].toString(),
+                    stat[STAT[3]].toString(),
+                    stat[STAT[4]].toString()))
         }
     }
 

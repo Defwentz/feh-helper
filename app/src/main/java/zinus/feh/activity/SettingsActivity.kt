@@ -180,6 +180,29 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                     .show()
                 true
             }
+            val updateNewBtn = findPreference(getString(R.string.key_update_new_local))
+            updateNewBtn.setOnPreferenceClickListener { MaterialDialog.Builder(activity)
+                    .title(R.string.title_update_new_local)
+                    .content(R.string.summ_update_new_local)
+                    .positiveText(R.string.yes)
+                    .negativeText(R.string.no)
+                    .onPositive { dialog, which ->
+                        doAsync {
+                            if (Helper.isNetworkConnected(activity) && DataOp.heroes != null) {
+                                DataOp.fetchNewFromGamepedia(activity,
+                                        DataOp.fetchHeroNames(DataOp.heroes!!),
+                                        { heroes ->
+                                    DataOp.clearLocal(activity.database)
+                                    DataOp.saveToLocal(activity.database, heroes)
+                                })
+                            } else {
+                                runOnUiThread { toast("no Internet acess") }
+                            }
+                        }
+                    }
+                    .show()
+                true
+            }
             val wipeBtn = findPreference(getString(R.string.key_wipe_nation))
             wipeBtn.setOnPreferenceClickListener { MaterialDialog.Builder(activity)
                         .title(R.string.title_wipe_nation)
