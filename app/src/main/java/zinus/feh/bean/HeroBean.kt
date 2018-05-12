@@ -25,7 +25,6 @@ class HeroBean : Serializable {
         val COL_WPN = "wpnType"
         val COL_MV = "mvType"
         val COL_MINRAR = "minrarity"
-        val COL_COLOR = "color"
         val COL_RELDT = "releaseDate"
         val COL_BHP = "basehp"
         val COL_BATK = "baseatk"
@@ -46,7 +45,6 @@ class HeroBean : Serializable {
     var mvType: Int = 0
     var id: Long = 0
     var minrarity: Int = 0
-    var color: Int = 0
     var releaseDate: Int = 0
 
     var basehp: Int = 0
@@ -70,21 +68,45 @@ class HeroBean : Serializable {
 
     fun grabFromPage() {
 
-//        wpnType = elements[2].attr("data-sort-value").toInt()
-//        color = (wpnType-1) / 3
-//        mvType = elements[3].attr("data-sort-value").toInt()
-//
-//        releaseDate = 0
-
-
         val htmlRaw = Helper.fetch_url(pageUrl)
         val htmlContent = Jsoup.parse(htmlRaw).getElementById("mw-content-text")
 
         val htmlTables = htmlContent.getElementsByTag("table")
+        if (htmlTables.size < 2) {
+            return
+        }
 
+        var infoBoxIdx = 1
+        if (htmlTables[0].className().equals("wikitable default")) {    // there's a table for all alts
+            infoBoxIdx = 2
+        }
 
-        val baseTable = htmlTables[2]
-        val growthTable = htmlTables[4]
+        val infoTable = htmlTables[infoBoxIdx]
+        val imgElements = infoTable.getElementsByTag("img")
+        if (imgElements.size < 4) { // doesn't even have the 4 portraits
+            return
+        }
+        var wpnIdx = 4
+        for (i in wpnIdx..(imgElements.size-1)) {
+            val altStr = imgElements[i].attr("alt").toString()
+            if (altStr.equals("★") == false && altStr.contains("Legendary") == false) {
+                wpnIdx = i
+                break
+            }
+        }
+        val weaponEle = imgElements[wpnIdx]
+        val mvEle = imgElements[wpnIdx+1]
+        wpnType = Helper.wpnTypeStringToInt(weaponEle.attr("alt").toString())
+        mvType = Helper.mvTypeStringToInt(mvEle.attr("alt").toString())
+        Log.d("abc", "wpn: " + wpnType + ", mv: " + mvType)
+//        releaseDate = 0
+
+        if (htmlTables[infoBoxIdx+1].className().equals("wikitable default") == false) {    // there's a quote
+            infoBoxIdx++
+        }
+        val baseTable = htmlTables[infoBoxIdx+1]
+
+        val growthTable = htmlTables[infoBoxIdx+3]
 
         val baseTRs = baseTable.getElementsByTag("tr")
         val growthTRs = growthTable.getElementsByTag("tr")
@@ -111,20 +133,7 @@ class HeroBean : Serializable {
                     }
                 }
             } else { // nonsummonable
-                for (i in baseTDs.indices) {
-                    when (i) {
-                        1 -> {
-                            basehp = baseTDs[i].text().toInt()
-                        }
-                        2 -> baseatk = baseTDs[i].text().toInt()
-                        3 -> basespd = baseTDs[i].text().toInt()
-                        4 -> basedef = baseTDs[i].text().toInt()
-                        5 -> baseres = baseTDs[i].text().toInt()
-                        else -> {
-
-                        }
-                    }
-                }
+                return
             }
             for (i in growthTDs.indices) {
                 when (i) {
@@ -284,23 +293,22 @@ class HeroBean : Serializable {
         wpnType = (columns[3] as Long).toInt()
         mvType = (columns[4] as Long).toInt()
         minrarity = (columns[5] as Long).toInt()
-        color = (columns[6] as Long).toInt()
-        releaseDate = (columns[7] as Long).toInt()
+        releaseDate = (columns[6] as Long).toInt()
 
-        basehp = (columns[8] as Long).toInt()
-        baseatk = (columns[9] as Long).toInt()
-        basespd = (columns[10] as Long).toInt()
-        basedef = (columns[11] as Long).toInt()
-        baseres = (columns[12] as Long).toInt()
+        basehp = (columns[7] as Long).toInt()
+        baseatk = (columns[8] as Long).toInt()
+        basespd = (columns[9] as Long).toInt()
+        basedef = (columns[10] as Long).toInt()
+        baseres = (columns[11] as Long).toInt()
 
-        hpgrowth = (columns[13] as Long).toInt()
-        atkgrowth = (columns[14] as Long).toInt()
-        spdgrowth = (columns[15] as Long).toInt()
-        defgrowth = (columns[16] as Long).toInt()
-        resgrowth = (columns[17] as Long).toInt()
+        hpgrowth = (columns[12] as Long).toInt()
+        atkgrowth = (columns[13] as Long).toInt()
+        spdgrowth = (columns[14] as Long).toInt()
+        defgrowth = (columns[15] as Long).toInt()
+        resgrowth = (columns[16] as Long).toInt()
     }
 
     override fun toString(): String {
-        return "HeroBean(pageUrl='$pageUrl', name='$name', wpnType=$wpnType, mvType=$mvType, id=$id, minrarity=$minrarity, color=$color, releaseDate=$releaseDate, basehp=$basehp, baseatk=$baseatk, basespd=$basespd, basedef=$basedef, baseres=$baseres, hpgrowth=$hpgrowth, atkgrowth=$atkgrowth, spdgrowth=$spdgrowth, defgrowth=$defgrowth, resgrowth=$resgrowth)"
+        return "HeroBean(pageUrl='$pageUrl', name='$name', wpnType=$wpnType, mvType=$mvType, id=$id, minrarity=$minrarity, releaseDate=$releaseDate, basehp=$basehp, baseatk=$baseatk, basespd=$basespd, basedef=$basedef, baseres=$baseres, hpgrowth=$hpgrowth, atkgrowth=$atkgrowth, spdgrowth=$spdgrowth, defgrowth=$defgrowth, resgrowth=$resgrowth)"
     }
 }

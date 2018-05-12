@@ -34,7 +34,6 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "HeroesDB", null, 1)
                 HeroBean.COL_WPN to INTEGER,
                 HeroBean.COL_MV to INTEGER,
                 HeroBean.COL_MINRAR to INTEGER,
-                HeroBean.COL_COLOR to INTEGER,
                 HeroBean.COL_RELDT to INTEGER,
 
                 HeroBean.COL_BHP to INTEGER,

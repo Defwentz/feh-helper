@@ -12,11 +12,50 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        android:layout_marginEnd="8dp"
         android:layout_weight="1"
         android:text="alfonse"
         android:textAppearance="@style/ListHeader"
+        app:layout_constraintEnd_toStartOf="@+id/frameLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/frameLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/head"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_mv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="3dp"
+            android:layout_marginTop="5dp"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:maxHeight="28dp"
+            android:maxWidth="28dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/icon_move_armored" />
+
+        <ImageView
+            android:id="@+id/iv_wpn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:maxHeight="32dp"
+            android:maxWidth="32dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/icon_class_red_tome" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/head"

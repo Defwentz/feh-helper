@@ -35,6 +35,8 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
     var hero: HeroBean? = hero
     var mHeroes: ArrayList<MHeroBean> = ArrayList<MHeroBean>()
 
+    var mvIv: ImageView? = null
+    var wpnIv: ImageView? = null
     var nickEt: EditText? = null
     var rarSpinner: Spinner? = null
     var mrgSpinner: Spinner? = null
@@ -251,6 +253,13 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
 
         when(groupPosition) {
             0 -> {
+                mvIv = retView.findViewById<ImageView>(R.id.iv_mv)
+                wpnIv = retView.findViewById<ImageView>(R.id.iv_wpn)
+                if (this.hero != null) {
+                    mvIv!!.setImageDrawable( ctxt.resources.getDrawable(Helper.MVIMGS[this.hero!!.mvType]) )
+                    wpnIv!!.setImageDrawable( ctxt.resources.getDrawable(Helper.WPNIMGS[this.hero!!.wpnType]) )
+                }
+
                 nickEt = retView.findViewById<EditText>(R.id.et_nick)
                 nickEt!!.onFocusChange { v, hasFocus ->
                     Log.e("abc", "focus lost")

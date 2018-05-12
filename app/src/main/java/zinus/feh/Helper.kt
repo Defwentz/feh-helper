@@ -126,4 +126,68 @@ object Helper {
         update(hero, dialog)
     }
 
+    val WPNCOLORSTRINGS = arrayOf("Red", "Blue", "Green", "Colorless")
+    val WPNTYPESTRINGS = listOf<List<String>>(
+            listOf("Sword", "Bow", "Tome", "Breath"),
+            listOf("Lance", "Bow", "Tome", "Breath"),
+            listOf("Axe", "Bow", "Tome", "Breath"),
+            listOf("Dagger", "Bow", "Staff", "Breath"))
+    fun wpnTypeStringToInt(str: String): Int {
+        var ret: Int = -1
+
+        val strs = str.split(' ')
+        if (strs.size != 2) {
+            return ret
+        }
+
+        for (i in WPNCOLORSTRINGS.indices) {
+            if (WPNCOLORSTRINGS[i].equals(strs[0])) {
+                ret = i
+            }
+        }
+
+        if (ret < 0) {
+            return ret
+        }
+
+        for (i in WPNTYPESTRINGS[0].indices) {
+            if (WPNTYPESTRINGS[ret][i].equals(strs[1])) {
+                return ret + i*4
+            }
+        }
+        return -1
+    }
+
+    val MVTYPESTRINGS = arrayOf("Infantry", "Armored", "Cavalry", "Flying")
+    fun mvTypeStringToInt(str: String): Int {
+        for (i in MVTYPESTRINGS.indices) {
+            if (str.contains(MVTYPESTRINGS[i])) {
+                return i
+            }
+        }
+        return -1
+    }
+
+    val WPNIMGS = arrayOf(
+            R.drawable.icon_class_red_sword,
+            R.drawable.icon_class_blue_lance,
+            R.drawable.icon_class_green_axe,
+            R.drawable.icon_class_colorless_dagger,
+            R.drawable.icon_class_red_bow,
+            R.drawable.icon_class_blue_bow,
+            R.drawable.icon_class_green_bow,
+            R.drawable.icon_class_colorless_bow,
+            R.drawable.icon_class_red_tome,
+            R.drawable.icon_class_blue_tome,
+            R.drawable.icon_class_green_tome,
+            R.drawable.icon_class_colorless_staff,
+            R.drawable.icon_class_red_breath,
+            R.drawable.icon_class_blue_breath,
+            R.drawable.icon_class_green_breath,
+            R.drawable.icon_class_colorless_breath)
+    val MVIMGS = arrayOf(
+            R.drawable.icon_move_infantry,
+            R.drawable.icon_move_armored,
+            R.drawable.icon_move_cavalry,
+            R.drawable.icon_move_flying)
 }

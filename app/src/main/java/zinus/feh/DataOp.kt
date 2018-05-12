@@ -203,7 +203,6 @@ object DataOp {
                         HeroBean.COL_WPN to hero.wpnType,
                         HeroBean.COL_MV to hero.mvType,
                         HeroBean.COL_MINRAR to hero.minrarity,
-                        HeroBean.COL_COLOR to hero.color,
                         HeroBean.COL_RELDT to hero.releaseDate,
 
                         HeroBean.COL_BHP to hero.basehp,
