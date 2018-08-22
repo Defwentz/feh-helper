@@ -1,6 +1,8 @@
 package zinus.feh.bean
 
 /**
+ * Class for storing hero information like stats.
+ *
  * Created by macbookair on 11/9/17.
  */
 import android.util.Log
@@ -77,7 +79,7 @@ class HeroBean : Serializable {
         }
 
         var infoBoxIdx = 1
-        if (htmlTables[0].className().equals("wikitable default")) {    // there's a table for all alts
+        if (htmlTables[0].className().equals("wikitable default character-about")) {    // there's a table for all alts
             infoBoxIdx = 2
         }
 
@@ -133,7 +135,20 @@ class HeroBean : Serializable {
                     }
                 }
             } else { // nonsummonable
-                return
+                for (i in baseTDs.indices) {
+                    when (i) {
+                        1 -> {
+                            basehp = baseTDs[i].text().toInt()
+                        }
+                        2 -> baseatk = baseTDs[i].text().toInt()
+                        3 -> basespd = baseTDs[i].text().toInt()
+                        4 -> basedef = baseTDs[i].text().toInt()
+                        5 -> baseres = baseTDs[i].text().toInt()
+                        else -> {
+
+                        }
+                    }
+                }
             }
             for (i in growthTDs.indices) {
                 when (i) {

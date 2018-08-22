@@ -13,6 +13,8 @@ import zinus.feh.bean.MHeroBean
 
 
 /**
+ * Class for most of high-level data operations like fetch hero data from gamepedia.
+ *
  * Created by macbookair on 11/10/17.
  */
 
@@ -55,7 +57,8 @@ object DataOp {
 
         var heroes: MutableList<HeroBean> = mutableListOf<HeroBean>()
 
-        val retJsonStr = Helper.fetch_url("http://feheroes.gamepedia.com/api.php?action=query&format=json&prop=&list=categorymembers&meta=&titles=&cmtitle=+Category%3A+Heroes&cmlimit=max")
+        val retJsonStr = Helper.fetch_url("https://feheroes.gamepedia.com/api.php?action=query&format=json&prop=&list=categorymembers&meta=&titles=&cmtitle=+Category%3A+Heroes&cmlimit=max")
+        Log.e("abc", retJsonStr)
         val retJson = JSONObject(retJsonStr)
         val arrayJson = retJson.getJSONObject("query").getJSONArray("categorymembers")
 

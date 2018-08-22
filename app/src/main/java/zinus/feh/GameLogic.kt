@@ -1,6 +1,8 @@
 package zinus.feh
 
 /**
+ * Class for game logic related computation.
+ *
  * Created by macbookair on 11/10/17.
  */
 object GameLogic {

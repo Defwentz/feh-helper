@@ -3,6 +3,8 @@ package zinus.feh.bean
 import zinus.feh.GameLogic
 
 /**
+ * Class for storing my hero information like boon and bane.
+ *
  * Created by macbookair on 11/10/17.
  */
 
