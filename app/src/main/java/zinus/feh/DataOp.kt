@@ -57,7 +57,7 @@ object DataOp {
 
         var heroes: MutableList<HeroBean> = mutableListOf<HeroBean>()
 
-        val retJsonStr = Helper.fetch_url("https://feheroes.gamepedia.com/api.php?action=query&format=json&prop=&list=categorymembers&meta=&titles=&cmtitle=+Category%3A+Heroes&cmlimit=max")
+        val retJsonStr = Helper.fetch_url(Config.GAMEPEDIA_HEROES_REQ_URL)
         Log.e("abc", retJsonStr)
         val retJson = JSONObject(retJsonStr)
         val arrayJson = retJson.getJSONObject("query").getJSONArray("categorymembers")
@@ -123,7 +123,7 @@ object DataOp {
 
         var heroes: MutableList<HeroBean> = mutableListOf<HeroBean>()
 
-        val retJsonStr = Helper.fetch_url("http://feheroes.gamepedia.com/api.php?action=query&format=json&prop=&list=categorymembers&meta=&titles=&cmtitle=+Category%3A+Heroes&cmlimit=max")
+        val retJsonStr = Helper.fetch_url(Config.GAMEPEDIA_HEROES_REQ_URL)
         val retJson = JSONObject(retJsonStr)
         val arrayJson = retJson.getJSONObject("query").getJSONArray("categorymembers")
 

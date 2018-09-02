@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <android.widget.AutoCompleteTextView
-    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:text="@string/search_hint"
-    android:minWidth="200dp"
-    android:id="@+id/txtview_search"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/iv_drawer"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        app:srcCompat="@android:drawable/ic_menu_sort_by_size" />
+
+    <android.widget.AutoCompleteTextView
+        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:text="@string/search_hint"
+        android:minWidth="200dp"
+        android:id="@+id/txtview_search"
+        app:layout_constraintLeft_toRightOf="@+id/iv_drawer"
     />
 </android.support.constraint.ConstraintLayout>

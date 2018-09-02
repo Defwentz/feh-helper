@@ -3,17 +3,19 @@ package zinus.feh.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.design.widget.NavigationView
+import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
+import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.ExpandableListView
-import android.widget.TextView
+import android.widget.*
+import com.afollestad.materialdialogs.MaterialDialog
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.toast
 import zinus.feh.DataOp
 import zinus.feh.DataOp.clearLocal
@@ -36,6 +38,7 @@ class CheckStatActivity : AppCompatActivity() {
         val REQ_DB = 1
         val KEY_H = "heroes"
     }
+    var drawerMenu : DrawerLayout? = null
     var autoCmpAdapter : ArrayAdapter<String>? = null
     var searchTxtView : AutoCompleteTextView? = null
 
@@ -46,6 +49,48 @@ class CheckStatActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_check_stat)
+
+        drawerMenu = findViewById<DrawerLayout>(R.id.drawer_layout)
+
+        val navigationView: NavigationView = findViewById(R.id.nav_view)
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            // set item as selected to persist highlight
+            menuItem.isChecked = true
+
+            when(menuItem.itemId) {
+                R.id.action_sync -> {
+                    MaterialDialog.Builder(this)
+                            .title(R.string.title_update_local)
+                            .content(R.string.summ_update_local)
+                            .positiveText(R.string.yes)
+                            .negativeText(R.string.no)
+                            .onPositive { dialog, which ->
+                                doAsync {
+                                    if (Helper.isNetworkConnected(this@CheckStatActivity)) {
+                                        DataOp.fetchFromGamepedia(this@CheckStatActivity, { heroes ->
+                                            DataOp.clearLocal(this@CheckStatActivity.database)
+                                            DataOp.saveToLocal(this@CheckStatActivity.database, heroes)
+                                        })
+                                    } else {
+                                        runOnUiThread { toast("no Internet acess") }
+                                    }
+                                }
+                            }
+                            .show()
+                }
+                R.id.action_setting -> {
+                    val intent: Intent = Intent(this, SettingsActivity::class.java)
+                    startActivityForResult(intent, REQ_DB)
+                }
+            }
+            // close drawer when item is tapped
+            drawerMenu!!.closeDrawers()
+
+            // Add code here to update the UI based on the item selected
+            // For example, swap UI fragments here
+
+            true
+        }
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -101,10 +146,10 @@ class CheckStatActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         val id = item?.itemId
         when(id) {
-            R.id.action_settings -> {
-                val intent: Intent = Intent(this, SettingsActivity::class.java)
-                startActivityForResult(intent, REQ_DB)
-            }
+//            R.id.action_settings -> {
+//                val intent: Intent = Intent(this, SettingsActivity::class.java)
+//                startActivityForResult(intent, REQ_DB)
+//            }
             R.id.action_nation -> {
                 val intent: Intent = Intent(this, NationActivity::class.java)
                 startActivity(intent)
@@ -156,6 +201,10 @@ class CheckStatActivity : AppCompatActivity() {
 
         //open the keyboard focused in the edtSearch
         imm.showSoftInput(searchTxtView, InputMethodManager.SHOW_IMPLICIT)
+
+        action.customView.findViewById<ImageView>(R.id.iv_drawer).setOnClickListener {
+            drawerMenu!!.openDrawer(Gravity.START)
+        }
     }
 
     fun initContent(name: String) {
