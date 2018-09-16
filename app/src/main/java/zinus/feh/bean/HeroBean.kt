@@ -5,6 +5,7 @@ package zinus.feh.bean
  *
  * Created by macbookair on 11/9/17.
  */
+import android.media.Image
 import android.util.Log
 import org.json.JSONObject
 import org.jsoup.Jsoup
@@ -38,6 +39,8 @@ class HeroBean : Serializable {
         val COL_GSPD = "spdgrowth"
         val COL_GDEF = "defgrowth"
         val COL_GRES = "resgrowth"
+
+        val COL_PORTRAIT = "portrait"
     }
 
     lateinit var pageUrl: String
@@ -59,6 +62,8 @@ class HeroBean : Serializable {
     var spdgrowth: Int = 0
     var defgrowth: Int = 0
     var resgrowth: Int = 0
+
+    var portrait: Image? = null
 
     /**
      * turn hero name into their page url
@@ -176,6 +181,10 @@ class HeroBean : Serializable {
         } else {
             minrarity = 5
         }
+    }
+
+    fun grabPortraitFromUrl(portUrl: String) {
+        
     }
 
     /**
@@ -345,6 +354,8 @@ class HeroBean : Serializable {
         spdgrowth = (columns[14] as Long).toInt()
         defgrowth = (columns[15] as Long).toInt()
         resgrowth = (columns[16] as Long).toInt()
+
+
     }
 
     fun get_growths(): List<Int> {

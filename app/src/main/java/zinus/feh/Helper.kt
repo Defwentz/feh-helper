@@ -31,7 +31,7 @@ object Helper {
         return URL(url).readText()
     }
 
-    val df: DateFormat = SimpleDateFormat("yyyyMMdd")
+    val df: DateFormat = SimpleDateFormat("yyyyMMdd") as DateFormat
 
     fun getDateInt(): Int {
         val today = Calendar.getInstance().time
@@ -128,29 +128,29 @@ object Helper {
 
     val WPNCOLORSTRINGS = arrayOf("Red", "Blue", "Green", "Colorless")
     val WPNTYPESTRINGS = listOf<List<String>>(
-            listOf("Sword", "Bow", "Tome", "Breath"),
-            listOf("Lance", "Bow", "Tome", "Breath"),
-            listOf("Axe", "Bow", "Tome", "Breath"),
-            listOf("Dagger", "Bow", "Staff", "Breath"))
+            listOf("Sword", "Bow", "Tome", "Breath", "Dagger", "Staff"),
+            listOf("Lance", "Bow", "Tome", "Breath", "Dagger", "Staff"),
+            listOf("Axe", "Bow", "Tome", "Breath", "Dagger", "Staff"),
+            listOf("_", "Bow", "Tome", "Breath", "Dagger", "Staff"))
     fun wpnTypeStringToInt(str: String): Int {
-        var ret: Int = -1
+        var ret: Int = 4    // default is red bow
 
         val strs = str.split(' ')
         if (strs.size != 2) {
             return ret
         }
 
-        for (i in WPNCOLORSTRINGS.indices) {
+        for (i in WPNCOLORSTRINGS.indices) {    // determine color
             if (WPNCOLORSTRINGS[i].equals(strs[0])) {
                 ret = i
             }
         }
 
-        if (ret < 0) {
+        if (ret == 4) { // if color can't be determined
             return ret
         }
 
-        for (i in WPNTYPESTRINGS[0].indices) {
+        for (i in WPNTYPESTRINGS[0].indices) {  // all list in WPNTYPESTRINGS has the same size so
             if (WPNTYPESTRINGS[ret][i].equals(strs[1])) {
                 return ret + i*4
             }
@@ -165,29 +165,37 @@ object Helper {
                 return i
             }
         }
-        return -1
+        return 0    // default is infantry
     }
 
     val WPNIMGS = arrayOf(
-            R.drawable.icon_class_red_sword,
-            R.drawable.icon_class_blue_lance,
-            R.drawable.icon_class_green_axe,
-            R.drawable.icon_class_colorless_dagger,
-            R.drawable.icon_class_red_bow,
-            R.drawable.icon_class_blue_bow,
-            R.drawable.icon_class_green_bow,
-            R.drawable.icon_class_colorless_bow,
-            R.drawable.icon_class_red_tome,
-            R.drawable.icon_class_blue_tome,
-            R.drawable.icon_class_green_tome,
-            R.drawable.icon_class_colorless_staff,
-            R.drawable.icon_class_red_breath,
-            R.drawable.icon_class_blue_breath,
-            R.drawable.icon_class_green_breath,
-            R.drawable.icon_class_colorless_breath)
+        R.drawable.icon_class_red_sword,
+        R.drawable.icon_class_blue_lance,
+        R.drawable.icon_class_green_axe,
+        R.drawable.icon_class_colorless_dagger, // colorless _
+        R.drawable.icon_class_red_bow,
+        R.drawable.icon_class_blue_bow,
+        R.drawable.icon_class_green_bow,
+        R.drawable.icon_class_colorless_bow,
+        R.drawable.icon_class_red_tome,
+        R.drawable.icon_class_blue_tome,
+        R.drawable.icon_class_green_tome,
+        R.drawable.icon_class_colorless_dagger, // colorless tome
+        R.drawable.icon_class_red_breath,
+        R.drawable.icon_class_blue_breath,
+        R.drawable.icon_class_green_breath,
+        R.drawable.icon_class_colorless_breath,
+        R.drawable.icon_class_red_dagger,
+        R.drawable.icon_class_blue_dagger,
+        R.drawable.icon_class_green_dagger,
+        R.drawable.icon_class_colorless_dagger,
+        R.drawable.icon_class_colorless_staff,  // red staff
+        R.drawable.icon_class_colorless_staff,  // blue staff
+        R.drawable.icon_class_colorless_staff,  // green staff
+        R.drawable.icon_class_colorless_staff)
     val MVIMGS = arrayOf(
-            R.drawable.icon_move_infantry,
-            R.drawable.icon_move_armored,
-            R.drawable.icon_move_cavalry,
-            R.drawable.icon_move_flying)
+        R.drawable.icon_move_infantry,
+        R.drawable.icon_move_armored,
+        R.drawable.icon_move_cavalry,
+        R.drawable.icon_move_flying)
 }
