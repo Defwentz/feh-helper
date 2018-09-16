@@ -6,6 +6,10 @@
             android:icon="@drawable/ic_sync_black_24dp"
             android:title="@string/title_update_local" />
         <item
+            android:id="@+id/action_sync_only_new"
+            android:icon="@drawable/ic_sync_black_24dp"
+            android:title="@string/title_update_new_local" />
+        <item
             android:id="@+id/action_setting"
             android:icon="@drawable/ic_outline_settings_24px"
             android:title="@string/title_activity_settings" />

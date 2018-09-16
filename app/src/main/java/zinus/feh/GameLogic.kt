@@ -1,5 +1,7 @@
 package zinus.feh
 
+import java.lang.Math.floor
+
 /**
  * Class for game logic related computation.
  *
@@ -11,6 +13,14 @@ object GameLogic {
                                 listOf(7,9,11,13,15,17,19,21,23,25,27,29,31,33),
                                 listOf(8,10,12,14,16,18,20,22,24,26,28,31,33,35),
                                 listOf(8,10,13,15,17,19,22,24,26,28,30,33,35,37))
+    val RARITY_FACTOR = listOf<Float>(0.86f, 0.93f, 1.0f, 1.07f, 1.14f)
+
+    fun get_growth_val(rar: Int, growths: List<Int>): List<Int> {
+        val rar_fact = RARITY_FACTOR[rar-1]
+        val master_growth_rates = growths.map { stat_growth -> floor((rar_fact * stat_growth).toDouble()) }
+        return master_growth_rates.map { mgr -> floor(0.39 * mgr).toInt() }
+    }
+    
 
     fun getGVs(rar: Int, grw: Int): Int {
         if(grw >= GVs[rar].size) {
@@ -31,7 +41,12 @@ object GameLogic {
         return 0
     }
 
-    // convert stat to a map with header and stat
+    /**
+     * convert stat to a map with stat name as key and stat val as val
+     *
+     * @param[stat] example: [30, 35, 35, 20, 20]
+     * @return example: [hp: 30, atk: 35, ...]
+     */
     fun statMap(stat: List<Int>): MutableMap<String, Int> {
         return mutableMapOf<String, Int>(
                 STAT[0] to stat[0],
@@ -41,6 +56,10 @@ object GameLogic {
                 STAT[4] to stat[4])
     }
 
+    /**
+     * given boon and bane string returns list of stat modifier
+     * @return example: if neutral, return [0, 0, 0 ,0 ,0]
+     */
     fun getGVMod(boon: String, bane: String): ArrayList<Int> {
         val boonI = statColToInt(boon)
         val baneI = statColToInt(bane)

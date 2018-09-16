@@ -78,6 +78,28 @@ class CheckStatActivity : AppCompatActivity() {
                             }
                             .show()
                 }
+                R.id.action_sync_only_new -> {
+                    MaterialDialog.Builder(this)
+                            .title(R.string.title_update_local)
+                            .content(R.string.summ_update_local)
+                            .positiveText(R.string.yes)
+                            .negativeText(R.string.no)
+                            .onPositive { dialog, which ->
+                                doAsync {
+                                    if (Helper.isNetworkConnected(this@CheckStatActivity)) {
+                                        DataOp.fetchNewFromGamepedia(this@CheckStatActivity,
+                                                fetchHeroNames(DataOp.heroes!!),
+                                                { heroes ->
+                                                    DataOp.clearLocal(this@CheckStatActivity.database)
+                                                    DataOp.saveToLocal(this@CheckStatActivity.database, heroes)
+                                                })
+                                    } else {
+                                        runOnUiThread { toast("no Internet acess") }
+                                    }
+                                }
+                            }
+                            .show()
+                }
                 R.id.action_setting -> {
                     val intent: Intent = Intent(this, SettingsActivity::class.java)
                     startActivityForResult(intent, REQ_DB)

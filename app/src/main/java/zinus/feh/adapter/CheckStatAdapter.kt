@@ -25,7 +25,7 @@ import java.util.*
  */
 
 class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdapter() {
-    val header = arrayOf<String>("???", "base stats", "max stats", "mine")
+    val header = arrayOf<String>("Veroncia: Emblian Princess", "base stats", "max stats", "mine")
     val cheader = arrayListOf<String>("rarity", "hp", "atk", "spd", "def", "res")
 
     var selHero: MHeroBean? = null
@@ -69,41 +69,25 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
 
         var i = 5
         while (i >= hero!!.minrarity) {
+            // my base stats
             val baseStat = baseStats[6-i].clone() as ArrayList<String>
-            val gvs = listOf<Int>(GVs[i-1][hero!!.hpgrowth],
-                    GVs[i-1][hero!!.atkgrowth],
-                    GVs[i-1][hero!!.spdgrowth],
-                    GVs[i-1][hero!!.defgrowth],
-                    GVs[i-1][hero!!.resgrowth])
-            for (j in baseStat.indices) {
-                if(j!=0) {
-                    baseStat[j] = (baseStat[j].toInt() + gvs[j-1]).toString()
-                }
-            }
 
             if (i == 5) {
                 val unchangedbaseStat = baseStats[6-i].clone() as ArrayList<String>
+                val netGvs = GameLogic.get_growth_val(5, hero!!.get_mod_growths(0))
 
-                val baneGvs = listOf<Int>(GameLogic.getGVs(i-1,hero!!.hpgrowth-1),
-                        GameLogic.getGVs(i-1,hero!!.atkgrowth-1),
-                        GameLogic.getGVs(i-1,hero!!.spdgrowth-1),
-                        GameLogic.getGVs(i-1,hero!!.defgrowth-1),
-                        GameLogic.getGVs(i-1,hero!!.resgrowth-1))
-                val boonGvs = listOf<Int>(GameLogic.getGVs(i-1,hero!!.hpgrowth+1),
-                        GameLogic.getGVs(i-1,hero!!.atkgrowth+1),
-                        GameLogic.getGVs(i-1,hero!!.spdgrowth+1),
-                        GameLogic.getGVs(i-1,hero!!.defgrowth+1),
-                        GameLogic.getGVs(i-1,hero!!.resgrowth+1))
+                val baneGvs = GameLogic.get_growth_val(5, hero!!.get_mod_growths(-1))
+                val boonGvs = GameLogic.get_growth_val(5, hero!!.get_mod_growths(1))
 
                 for (j in baseStat.indices) {
                     if(j!=0) {
                         val baneStatInt = (unchangedbaseStat[j].toInt() + baneGvs[j-1]-1)
                         val boonStatInt = (unchangedbaseStat[j].toInt() + boonGvs[j-1]+1)
-                        val baseStatInt = baseStat[j].toInt()
+                        val baseStatInt = (baseStat[j].toInt() + netGvs[j-1])
                         if(baseStatInt - baneStatInt == 4) {
-                            baseStat[j] =  "<font color=#ff0000>$baneStatInt</font><font color=#000000>/${baseStat[j]}/</font>"
+                            baseStat[j] =  "<font color=#ff0000>$baneStatInt</font><font color=#000000>/${baseStatInt}/</font>"
                         } else {
-                            baseStat[j] = "<font color=#000000>${baneStatInt.toString() + "/" + baseStat[j] + "/"}</font>"
+                            baseStat[j] = "<font color=#000000>${baneStatInt.toString() + "/" + baseStatInt + "/"}</font>"
                         }
 
                         if(boonStatInt - baseStatInt == 4) {
@@ -113,8 +97,14 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
                         }
                     }
                 }
+            } else {
+                val growth_val = GameLogic.get_growth_val(i, hero!!.get_growths())
+                for (j in baseStat.indices) {
+                    if(j!=0) {
+                        baseStat[j] = (baseStat[j].toInt() + growth_val[j-1]).toString()
+                    }
+                }
             }
-
 
             maxStats.add(baseStat)
             i--

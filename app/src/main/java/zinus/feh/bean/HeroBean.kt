@@ -9,7 +9,6 @@ import android.util.Log
 import org.json.JSONObject
 import org.jsoup.Jsoup
 import zinus.feh.GameLogic
-import zinus.feh.GameLogic.GVs
 import zinus.feh.GameLogic.MrgOrder
 import zinus.feh.GameLogic.statColToInt
 import zinus.feh.Helper
@@ -61,30 +60,49 @@ class HeroBean : Serializable {
     var defgrowth: Int = 0
     var resgrowth: Int = 0
 
+    /**
+     * turn hero name into their page url
+     *
+     * @return example: https://feheroes.gamepedia.com/%3F%3F%3F:_Masked_Knight
+     */
+    fun encodeUrl(name: String): String {
+        return header + "/" + name.replace(" ", "_").replace("?", "%3F")
+    }
+
+    /**
+     * init hero data given their page id and technically just name from query on gamepedia
+     *
+     * @see grabFromPage
+     * @param[_id] their page id on gamepedia
+     * @param[json] query result {pageid:, title:,...}
+     */
     fun initFromJSON(_id: Long, json: JSONObject) {
         id = _id
         name = json.getString("title")
-        pageUrl = header + "/" + name.replace(" ", "_")
+        pageUrl = encodeUrl(name)
         grabFromPage()
     }
 
+    /**
+     * grab and parse a gamepedia webpage and init the rest of data of a hero
+     *
+     * @see initFromJSON
+     */
     fun grabFromPage() {
 
         val htmlRaw = Helper.fetch_url(pageUrl)
         val htmlContent = Jsoup.parse(htmlRaw).getElementById("mw-content-text")
 
-        val htmlTables = htmlContent.getElementsByTag("table")
-        if (htmlTables.size < 2) {
-            return
+        val heroInfoBox = htmlContent.getElementsByClass("hero-infobox")[0]
+        var baseTableHead: org.jsoup.nodes.Element? = htmlContent.getElementById("Level_1_Stats")
+        if (baseTableHead == null) {
+            baseTableHead = htmlContent.getElementById("Level_1_stats")
         }
+        val baseTable = baseTableHead!!.parent().nextElementSibling()
+        val growthTable = htmlContent.getElementById("Growth_Rates").parent().nextElementSibling().nextElementSibling()
 
-        var infoBoxIdx = 1
-        if (htmlTables[0].className().equals("wikitable default character-about")) {    // there's a table for all alts
-            infoBoxIdx = 2
-        }
 
-        val infoTable = htmlTables[infoBoxIdx]
-        val imgElements = infoTable.getElementsByTag("img")
+        val imgElements = heroInfoBox.getElementsByTag("img")
         if (imgElements.size < 4) { // doesn't even have the 4 portraits
             return
         }
@@ -102,13 +120,6 @@ class HeroBean : Serializable {
         mvType = Helper.mvTypeStringToInt(mvEle.attr("alt").toString())
         Log.d("abc", "wpn: " + wpnType + ", mv: " + mvType)
 //        releaseDate = 0
-
-        if (htmlTables[infoBoxIdx+1].className().equals("wikitable default") == false) {    // there's a quote
-            infoBoxIdx++
-        }
-        val baseTable = htmlTables[infoBoxIdx+1]
-
-        val growthTable = htmlTables[infoBoxIdx+3]
 
         val baseTRs = baseTable.getElementsByTag("tr")
         val growthTRs = growthTable.getElementsByTag("tr")
@@ -152,33 +163,35 @@ class HeroBean : Serializable {
             }
             for (i in growthTDs.indices) {
                 when (i) {
-                    1 -> hpgrowth = growthTDs[i].text().toInt()
-                    2 -> atkgrowth = growthTDs[i].text().toInt()
-                    3 -> spdgrowth = growthTDs[i].text().toInt()
-                    4 -> defgrowth = growthTDs[i].text().toInt()
-                    5 -> resgrowth = growthTDs[i].text().toInt()
+                    1 -> hpgrowth = growthTDs[i].text().replace("%", "").toInt()
+                    2 -> atkgrowth = growthTDs[i].text().replace("%", "").toInt()
+                    3 -> spdgrowth = growthTDs[i].text().replace("%", "").toInt()
+                    4 -> defgrowth = growthTDs[i].text().replace("%", "").toInt()
+                    5 -> resgrowth = growthTDs[i].text().replace("%", "").toInt()
                     else -> {
 
                     }
                 }
             }
-        } else { // bruno
+        } else {
             minrarity = 5
         }
     }
 
-    // compute base stats for all rarity
+    /**
+     * compute lv. 1 stats for all rarity
+     *
+     * @return example:
+     * [["5", "12", "42", "123", "123"],
+     *  ["4", ...]
+     * ]
+     */
     fun getBaseStats(): ArrayList<ArrayList<String>> {
 
         var ret = ArrayList<ArrayList<String>>()
 
         // temp holder for stat
-        val stat = GameLogic.statMap(listOf(
-                basehp,
-                baseatk,
-                basespd,
-                basedef,
-                baseres))
+        val stat = GameLogic.statMap(get_r5_max_stat())
 
         // base stat in 5 rarity
         ret.add(arrayListOf("5",
@@ -228,24 +241,39 @@ class HeroBean : Serializable {
         return ret
     }
 
+    /**
+     * get 5* lv. 40 stat
+     */
+    fun get_r5_max_stat(): List<Int> {
+        return listOf(
+                basehp,
+                baseatk,
+                basespd,
+                basedef,
+                baseres)
+    }
+
+    /**
+     * compute a particular hero's lv. 40 stat
+     *
+     * @param[boon] boon in string, example: "atk"
+     * @param[bane] same as boon
+     * @param[hero] MHeroBean instance, containing rarity and merge info and stuff
+     * @param[baseStats] return value from getBaseStats
+     * @return example:
+     */
     fun getHeroStat(boon: String, bane: String, hero: MHeroBean, baseStats: ArrayList<ArrayList<String>>): MutableMap<String, Int> {
 
+        // get 5* stat with iv modification
         val gvMod = GameLogic.getGVMod(boon, bane)
-
-        val stdBaseStat = baseStats[1]
-        val stdBaseStatMap = GameLogic.statMap(listOf(
-                stdBaseStat[1].toInt(),
-                stdBaseStat[2].toInt(),
-                stdBaseStat[3].toInt(),
-                stdBaseStat[4].toInt(),
-                stdBaseStat[5].toInt()))
-        for (k in stdBaseStatMap.keys) {
+        val stdBaseStatMap = GameLogic.statMap(get_r5_max_stat())
+        for (k in stdBaseStatMap.keys) {    // new base stat considering boon and bane
             stdBaseStatMap[k] = stdBaseStatMap[k]!! + gvMod[statColToInt(k)]
         }
-        // apparently this order is based on 5* stat with iv modification,
+
+        // apparently this merge order is based on 5* stat with iv modification,
         // not the actual rarity of the hero
         val order = MrgOrder(stdBaseStatMap)
-
 
         val baseStat = baseStats[6-hero.rarity]
         val ret = GameLogic.statMap(listOf(
@@ -260,15 +288,11 @@ class HeroBean : Serializable {
         }
 
         Log.e("abc", gvMod.toString())
-        val gvs = listOf<Int>(GVs[hero.rarity-1][hpgrowth + gvMod[0]],
-                GVs[hero.rarity-1][atkgrowth + gvMod[1]],
-                GVs[hero.rarity-1][spdgrowth + gvMod[2]],
-                GVs[hero.rarity-1][defgrowth + gvMod[3]],
-                GVs[hero.rarity-1][resgrowth + gvMod[4]])
+        val growth_val = GameLogic.get_growth_val(hero.rarity, get_mod_growths(gvMod))
 
         // new max level stats
         for (k in ret.keys) {
-            ret[k] = ret[k]!! + gvs[statColToInt(k)]
+            ret[k] = ret[k]!! + growth_val[statColToInt(k)]
         }
 
         var m = 0
@@ -322,6 +346,17 @@ class HeroBean : Serializable {
         defgrowth = (columns[15] as Long).toInt()
         resgrowth = (columns[16] as Long).toInt()
     }
+
+    fun get_growths(): List<Int> {
+        return get_mod_growths(listOf(0,0,0,0,0))
+    }
+    fun get_mod_growths(mod: Int): List<Int> {
+        return get_mod_growths(listOf(mod,mod,mod,mod,mod))
+    }
+    fun get_mod_growths(mod: List<Int>): List<Int> {
+        return listOf(hpgrowth + mod[0]*5, atkgrowth + mod[1]*5, spdgrowth + mod[2]*5, defgrowth + mod[3]*5, resgrowth + mod[4]*5)
+    }
+
 
     override fun toString(): String {
         return "HeroBean(pageUrl='$pageUrl', name='$name', wpnType=$wpnType, mvType=$mvType, id=$id, minrarity=$minrarity, releaseDate=$releaseDate, basehp=$basehp, baseatk=$baseatk, basespd=$basespd, basedef=$basedef, baseres=$baseres, hpgrowth=$hpgrowth, atkgrowth=$atkgrowth, spdgrowth=$spdgrowth, defgrowth=$defgrowth, resgrowth=$resgrowth)"
