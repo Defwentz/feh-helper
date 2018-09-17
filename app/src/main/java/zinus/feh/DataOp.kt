@@ -1,6 +1,7 @@
 package zinus.feh
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.util.Log
 import com.afollestad.materialdialogs.MaterialDialog
 import org.jetbrains.anko.db.*
@@ -54,9 +55,18 @@ object DataOp {
         return names
     }
 
+    fun nameCheck(names: List<String>, title: String): Boolean {
+        for(name: String in names) {
+            if (name.equals(title)) {
+                return true
+            }
+        }
+        return false
+    }
+
     fun fetchFromGamepedia(ctxt: Context, updateLocal: (List<HeroBean>) -> Any) {
 
-        val retJsonStr = Helper.fetch_url(Config.GAMEPEDIA_HEROES_REQ_URL)
+        val retJsonStr = Helper.fetch_url_text(Config.GAMEPEDIA_HEROES_REQ_URL)
         Log.e("abc", retJsonStr)
         val retJson = JSONObject(retJsonStr)
         val arrayJson = retJson.getJSONObject("query").getJSONArray("categorymembers")
@@ -74,18 +84,9 @@ object DataOp {
 
     }
 
-    fun nameCheck(names: List<String>, title: String): Boolean {
-        for(name: String in names) {
-            if (name.equals(title)) {
-                return true
-            }
-        }
-        return false
-    }
-
     fun fetchNewFromGamepedia(ctxt: Context, currentHeroes: List<String>, updateLocal: (List<HeroBean>) -> Any) {
 
-        val retJsonStr = Helper.fetch_url(Config.GAMEPEDIA_HEROES_REQ_URL)
+        val retJsonStr = Helper.fetch_url_text(Config.GAMEPEDIA_HEROES_REQ_URL)
         val retJson = JSONObject(retJsonStr)
         val arrayJson = retJson.getJSONObject("query").getJSONArray("categorymembers")
 
@@ -183,7 +184,8 @@ object DataOp {
                         HeroBean.COL_GATK to hero.atkgrowth,
                         HeroBean.COL_GSPD to hero.spdgrowth,
                         HeroBean.COL_GDEF to hero.defgrowth,
-                        HeroBean.COL_GRES to hero.resgrowth)
+                        HeroBean.COL_GRES to hero.resgrowth,
+                        HeroBean.COL_PORTRAIT to Helper.bmp2bytesarray(hero.portrait!!))
             }
         }
     }

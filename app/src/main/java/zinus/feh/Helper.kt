@@ -15,6 +15,12 @@ import java.net.URL
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import android.graphics.BitmapFactory
+import java.io.ByteArrayOutputStream
+import android.graphics.Bitmap
+import android.graphics.Bitmap.CompressFormat
+
+
 
 
 /**
@@ -27,8 +33,30 @@ object Helper {
         return networkInfo != null && networkInfo.isConnected
     }
 
-    fun fetch_url(url: String): String {
+    fun fetch_url_text(url: String): String {
         return URL(url).readText()
+    }
+
+    fun fetch_url_image(url: String): Bitmap {
+        val stream = URL(url).openStream()
+//        val options = BitmapFactory.Options()
+//        options.inScaled = false
+//        val bitmap = BitmapFactory.decodeStream(stream, null, options)
+        val bitmap = BitmapFactory.decodeStream(stream)
+//        Log.e("abc", "${bitmap.width} x ${bitmap.height}")
+        return bitmap
+    }
+
+    // convert from bitmap to byte array
+    fun bmp2bytesarray(bitmap: Bitmap): ByteArray {
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(CompressFormat.PNG, 0, stream)
+        return stream.toByteArray()
+    }
+
+    // convert from byte array to bitmap
+    fun bytesarray2bmp(image: ByteArray): Bitmap {
+        return BitmapFactory.decodeByteArray(image, 0, image.size)
     }
 
     val df: DateFormat = SimpleDateFormat("yyyyMMdd") as DateFormat
@@ -80,6 +108,7 @@ object Helper {
                     updateToUI(hero, dialog, update)
                 }
                 .build()
+        val heroData = DataOp.getHeroData(hero.name)
         val view = dialog.customView!!
         val nkEt = view.findViewById<EditText>(R.id.et_nick)
         val rarSpnr = view.findViewById<Spinner>(R.id.rar_spinner)
@@ -88,6 +117,13 @@ object Helper {
         val baneSpnr = view.findViewById<Spinner>(R.id.bane_spinner)
         val saveBtn = view.findViewById<ImageView>(R.id.btn_save)
         val nameTv  = view.findViewById<TextView>(R.id.textView)
+        val wpnIv = view.findViewById<ImageView>(R.id.iv_wpn)
+        val mvIv = view.findViewById<ImageView>(R.id.iv_mv)
+        val portIv  = view.findViewById<ImageView>(R.id.iv_portrait)
+
+        mvIv.setImageDrawable( ctxt.resources.getDrawable(Helper.MVIMGS[heroData!!.mvType]) )
+        wpnIv.setImageDrawable( ctxt.resources.getDrawable(Helper.WPNIMGS[heroData!!.wpnType]) )
+        portIv.setImageBitmap(heroData!!.portrait)
 
         saveBtn.visibility = View.INVISIBLE
         nkEt.setText(hero.nickname)

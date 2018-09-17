@@ -6,6 +6,7 @@ import android.util.Log
 import org.jetbrains.anko.db.*
 import zinus.feh.bean.HeroBean
 import zinus.feh.bean.MHeroBean
+import java.sql.Blob
 
 /**
  * Created by macbookair on 11/10/17.
@@ -46,7 +47,8 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "HeroesDB", null, 1)
                 HeroBean.COL_GATK to INTEGER,
                 HeroBean.COL_GSPD to INTEGER,
                 HeroBean.COL_GDEF to INTEGER,
-                HeroBean.COL_GRES to INTEGER)
+                HeroBean.COL_GRES to INTEGER,
+                HeroBean.COL_PORTRAIT to BLOB)
 
         db.createTable(MHeroBean.TABLE_NAME, true,
                 MHeroBean.COL_ID to INTEGER + PRIMARY_KEY + UNIQUE,
@@ -70,6 +72,7 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "HeroesDB", null, 1)
         db.dropTable(table_name, true)
         onCreate(db)
     }
+
 }
 
 // Access property for Context

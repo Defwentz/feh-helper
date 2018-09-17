@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.layoutInflater
 import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.sdk25.coroutines.onClick
@@ -35,6 +36,7 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
     var hero: HeroBean? = hero
     var mHeroes: ArrayList<MHeroBean> = ArrayList<MHeroBean>()
 
+    var portIv: ImageView? = null
     var mvIv: ImageView? = null
     var wpnIv: ImageView? = null
     var nickEt: EditText? = null
@@ -201,6 +203,13 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
             raritys.add(r.toString())
             r--
         }
+
+        portIv!!.setImageBitmap(hero.portrait!!)
+//        doAsync {
+//            this@CheckStatAdapter.hero!!.grabPortraitFromUrl()
+//            portIv!!.setImageBitmap(this@CheckStatAdapter.hero!!.portrait)
+//        }
+
         rarAdapter.notifyDataSetChanged()
 
     }
@@ -245,6 +254,7 @@ class CheckStatAdapter(contxt: Context, hero: HeroBean?): BaseExpandableListAdap
             0 -> {
                 mvIv = retView.findViewById<ImageView>(R.id.iv_mv)
                 wpnIv = retView.findViewById<ImageView>(R.id.iv_wpn)
+                portIv = retView.findViewById<ImageView>(R.id.iv_portrait)
                 if (this.hero != null) {
                     mvIv!!.setImageDrawable( ctxt.resources.getDrawable(Helper.MVIMGS[this.hero!!.mvType]) )
                     wpnIv!!.setImageDrawable( ctxt.resources.getDrawable(Helper.WPNIMGS[this.hero!!.wpnType]) )

@@ -5,18 +5,18 @@ package zinus.feh.bean
  *
  * Created by macbookair on 11/9/17.
  */
+import android.graphics.Bitmap
 import android.media.Image
 import android.util.Log
 import org.json.JSONObject
 import org.jsoup.Jsoup
+import zinus.feh.Config
 import zinus.feh.GameLogic
 import zinus.feh.GameLogic.MrgOrder
 import zinus.feh.GameLogic.statColToInt
 import zinus.feh.Helper
 import java.io.Serializable
 import java.util.*
-
-val header = "https://feheroes.gamepedia.com"
 
 class HeroBean : Serializable {
     companion object {
@@ -63,16 +63,7 @@ class HeroBean : Serializable {
     var defgrowth: Int = 0
     var resgrowth: Int = 0
 
-    var portrait: Image? = null
-
-    /**
-     * turn hero name into their page url
-     *
-     * @return example: https://feheroes.gamepedia.com/%3F%3F%3F:_Masked_Knight
-     */
-    fun encodeUrl(name: String): String {
-        return header + "/" + name.replace(" ", "_").replace("?", "%3F")
-    }
+    var portrait: Bitmap? = null
 
     /**
      * init hero data given their page id and technically just name from query on gamepedia
@@ -84,8 +75,9 @@ class HeroBean : Serializable {
     fun initFromJSON(_id: Long, json: JSONObject) {
         id = _id
         name = json.getString("title")
-        pageUrl = encodeUrl(name)
+        pageUrl = Config.encodeUrl(name)
         grabFromPage()
+        grabPortraitFromUrl()
     }
 
     /**
@@ -95,7 +87,7 @@ class HeroBean : Serializable {
      */
     fun grabFromPage() {
 
-        val htmlRaw = Helper.fetch_url(pageUrl)
+        val htmlRaw = Helper.fetch_url_text(pageUrl)
         val htmlContent = Jsoup.parse(htmlRaw).getElementById("mw-content-text")
 
         val heroInfoBox = htmlContent.getElementsByClass("hero-infobox")[0]
@@ -183,8 +175,18 @@ class HeroBean : Serializable {
         }
     }
 
-    fun grabPortraitFromUrl(portUrl: String) {
-        
+    fun grabPortraitFromUrl() {
+        var fname: String = ""
+        if (name.contains("?")) {
+            fname = "Masked Knight Face FC.png".replace(" ", "_")
+        } else {
+            fname = (name + " Face FC.png").replace(":", "").replace("\'", "").replace("\"", "").replace(" ", "_")
+        }
+        val portUrl = Config.GAMEPEDIA_HEADER + "/File:" + fname
+        val htmlRaw = Helper.fetch_url_text(portUrl)
+        val portEle = Jsoup.parse(htmlRaw)
+        val url = portEle.getElementsByClass("fullMedia")[0].child(0).attr("href")
+        portrait = Helper.fetch_url_image(url)
     }
 
     /**
@@ -355,7 +357,7 @@ class HeroBean : Serializable {
         defgrowth = (columns[15] as Long).toInt()
         resgrowth = (columns[16] as Long).toInt()
 
-
+        portrait = Helper.bytesarray2bmp(columns[17] as ByteArray)
     }
 
     fun get_growths(): List<Int> {
